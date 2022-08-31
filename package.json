@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rimraf dist && tsc",
+    "start": "node dist/main/api"
   },
   "repository": {
     "type": "git",
@@ -16,5 +17,17 @@
   "bugs": {
     "url": "https://github.com/Pedruhf/advance-node/issues"
   },
-  "homepage": "https://github.com/Pedruhf/advance-node#readme"
+  "homepage": "https://github.com/Pedruhf/advance-node#readme",
+  "devDependencies": {
+    "@types/module-alias": "^2.0.1",
+    "@types/node": "^18.7.14",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.8.2"
+  },
+  "engines": {
+    "node": "16.x"
+  },
+  "dependencies": {
+    "module-alias": "^2.2.2"
+  }
 }
