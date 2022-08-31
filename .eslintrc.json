@@ -1,0 +1,17 @@
+{
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "rules": {
+    "@typescript-eslint/interface-name-prefix": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-extra-parens": "off",
+    "@typescript-eslint/ban-types": "off",
+    "@typescript-eslint/no-shadow": "off",
+    "no-extra-parens": "off",
+    "semi": "error",
+    "quotes": "error"
+  }
+}
