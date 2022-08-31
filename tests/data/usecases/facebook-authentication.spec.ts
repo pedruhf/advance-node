@@ -19,10 +19,12 @@ const makeSut = (
 };
 
 describe("FacebookAuthentication Usecase", () => {
+  const token = "any_token";
+
   test("Should call LoadFacebookUserApi with correct params", async () => {
     const { sut, loadFacebookUserApiSpy } = makeSut();
-    await sut.perform({ token: "any_token" });
-    expect(loadFacebookUserApiSpy.token).toBe("any_token");
+    await sut.perform({ token });
+    expect(loadFacebookUserApiSpy.token).toBe(token);
     expect(loadFacebookUserApiSpy.callsCount).toBe(1);
   });
 
@@ -30,7 +32,7 @@ describe("FacebookAuthentication Usecase", () => {
     const loadFacebookUserApiSpy = new LoadFacebookUserApiSpy();
     loadFacebookUserApiSpy.result = undefined;
     const { sut } = makeSut(loadFacebookUserApiSpy);
-    const authResult = await sut.perform({ token: "any_token" });
+    const authResult = await sut.perform({ token });
     expect(authResult).toEqual(new AuthenticationError());
   });
 });
