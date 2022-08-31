@@ -1,20 +1,6 @@
 import { AuthenticationError } from "@/domain/errors";
-import { LoadFacebookUserApi } from "@/data/contracts/apis";
 import { FacebookAuthenticationUsecase } from "@/data/usecases";
-
-class LoadFacebookUserApiSpy implements LoadFacebookUserApi {
-  token?: string;
-  callsCount = 0;
-  result? = undefined;
-
-  async loadUser(
-    params: LoadFacebookUserApi.Params
-  ): Promise<LoadFacebookUserApi.Result> {
-    this.token = params.token;
-    this.callsCount++;
-    return this.result;
-  }
-}
+import { LoadFacebookUserApiSpy } from "@/tests/data/mocks";
 
 type SutTypes = {
   sut: FacebookAuthenticationUsecase;
