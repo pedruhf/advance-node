@@ -12,6 +12,7 @@
     "@typescript-eslint/no-extra-parens": "off",
     "@typescript-eslint/ban-types": "off",
     "@typescript-eslint/no-shadow": "off",
+    "@typescript-eslint/no-empty-function": "off",
     "no-extra-parens": "off",
     "semi": "error",
     "quotes": "error"
