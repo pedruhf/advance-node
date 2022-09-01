@@ -1,6 +1,7 @@
 import {
   CreateUserAccountByFacebookRepository,
   LoadUserAccountByEmailRepository,
+  UpdateFacebookUserAccountRepository,
 } from "@/data/repos";
 
 export class LoadUserAccountByEmailRepositorySpy
@@ -8,7 +9,10 @@ export class LoadUserAccountByEmailRepositorySpy
 {
   email?: string;
   callsCount = 0;
-  result? = undefined;
+  result?: LoadUserAccountByEmailRepository.Result = {
+    id: "any_id",
+    name: "any_name",
+  };
 
   async load(
     params: LoadUserAccountByEmailRepository.Params
@@ -31,5 +35,21 @@ export class CreateUserAccountByFacebookRepositorySpy
   ): Promise<CreateUserAccountByFacebookRepository.Result> {
     this.callsCount++;
     this.data = params;
+  }
+}
+
+export class UpdateFacebookUserAccountRepositorySpy
+  implements UpdateFacebookUserAccountRepository
+{
+  data?: UpdateFacebookUserAccountRepository.Params;
+  callsCount = 0;
+  result? = undefined;
+
+  async update(
+    params: UpdateFacebookUserAccountRepository.Params
+  ): Promise<UpdateFacebookUserAccountRepository.Result> {
+    this.callsCount++;
+    this.data = params;
+    return this.result;
   }
 }

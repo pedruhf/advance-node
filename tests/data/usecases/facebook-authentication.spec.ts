@@ -4,6 +4,7 @@ import {
   CreateUserAccountByFacebookRepositorySpy,
   LoadFacebookUserApiSpy,
   LoadUserAccountByEmailRepositorySpy,
+  UpdateFacebookUserAccountRepositorySpy,
 } from "@/tests/data/mocks";
 
 type SutTypes = {
@@ -11,23 +12,27 @@ type SutTypes = {
   loadFacebookUserApiSpy: LoadFacebookUserApiSpy;
   loadUserAccountByEmailRepositorySpy: LoadUserAccountByEmailRepositorySpy;
   createUserAccountByFacebookRepositorySpy: CreateUserAccountByFacebookRepositorySpy;
+  updateFacebookUserAccountRepositorySpy: UpdateFacebookUserAccountRepositorySpy;
 };
 
 type SutParams = {
   loadFacebookUserApiSpy?: LoadFacebookUserApiSpy;
   loadUserAccountByEmailRepositorySpy?: LoadUserAccountByEmailRepositorySpy;
   createUserAccountByFacebookRepositorySpy?: CreateUserAccountByFacebookRepositorySpy;
+  updateFacebookUserAccountRepositorySpy?: UpdateFacebookUserAccountRepositorySpy;
 };
 
 const makeSut = ({
   loadFacebookUserApiSpy = new LoadFacebookUserApiSpy(),
   loadUserAccountByEmailRepositorySpy = new LoadUserAccountByEmailRepositorySpy(),
   createUserAccountByFacebookRepositorySpy = new CreateUserAccountByFacebookRepositorySpy(),
+  updateFacebookUserAccountRepositorySpy = new UpdateFacebookUserAccountRepositorySpy(),
 }: SutParams = {}): SutTypes => {
   const sut = new FacebookAuthenticationUsecase(
     loadFacebookUserApiSpy,
     loadUserAccountByEmailRepositorySpy,
-    createUserAccountByFacebookRepositorySpy
+    createUserAccountByFacebookRepositorySpy,
+    updateFacebookUserAccountRepositorySpy
   );
 
   return {
@@ -35,13 +40,14 @@ const makeSut = ({
     loadFacebookUserApiSpy,
     loadUserAccountByEmailRepositorySpy,
     createUserAccountByFacebookRepositorySpy,
+    updateFacebookUserAccountRepositorySpy,
   };
 };
 
 describe("FacebookAuthentication Usecase", () => {
   const token = "any_token";
   const email = "any_facebook_email";
-  const createUserData = {
+  const facebookUserData = {
     email: "any_facebook_email",
     name: "any_facebook_name",
     facebookId: "any_facebook_id",
@@ -69,7 +75,7 @@ describe("FacebookAuthentication Usecase", () => {
     expect(loadUserAccountByEmailRepositorySpy.callsCount).toBe(1);
   });
 
-  test("Should call CreateUserAccountRepository when LoadUserAccountByEmailRepository returns undefined", async () => {
+  test("Should call CreateUserAccountByFacebookRepositorySpy when LoadUserAccountByEmailRepository returns undefined", async () => {
     const loadUserAccountByEmailRepositorySpy =
       new LoadUserAccountByEmailRepositorySpy();
     loadUserAccountByEmailRepositorySpy.result = undefined;
@@ -78,8 +84,19 @@ describe("FacebookAuthentication Usecase", () => {
     });
     await sut.perform({ token });
     expect(createUserAccountByFacebookRepositorySpy.data).toEqual(
-      createUserData
+      facebookUserData
     );
     expect(createUserAccountByFacebookRepositorySpy.callsCount).toBe(1);
+  });
+
+  test("Should call UpdateFacebookUserAccountRepositorySpy when LoadUserAccountByEmailRepository returns data", async () => {
+    const { sut, updateFacebookUserAccountRepositorySpy } = makeSut();
+    await sut.perform({ token });
+    expect(updateFacebookUserAccountRepositorySpy.data).toEqual({
+      id: "any_id",
+      name: "any_name",
+      facebookId: "any_facebook_id",
+    });
+    expect(updateFacebookUserAccountRepositorySpy.callsCount).toBe(1);
   });
 });

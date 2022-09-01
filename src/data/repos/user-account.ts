@@ -9,7 +9,12 @@ export namespace LoadUserAccountByEmailRepository {
     email: string;
   };
 
-  export type Result = undefined;
+  export type Result =
+    | {
+        id: string;
+        name?: string;
+      }
+    | undefined;
 }
 
 export interface CreateUserAccountByFacebookRepository {
@@ -21,6 +26,22 @@ export interface CreateUserAccountByFacebookRepository {
 export namespace CreateUserAccountByFacebookRepository {
   export type Params = {
     email: string;
+    name: string;
+    facebookId: string;
+  };
+
+  export type Result = void;
+}
+
+export interface UpdateFacebookUserAccountRepository {
+  update: (
+    params: UpdateFacebookUserAccountRepository.Params
+  ) => Promise<UpdateFacebookUserAccountRepository.Result>;
+}
+
+export namespace UpdateFacebookUserAccountRepository {
+  export type Params = {
+    id: string;
     name: string;
     facebookId: string;
   };
