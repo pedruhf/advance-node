@@ -99,4 +99,22 @@ describe("FacebookAuthentication Usecase", () => {
     });
     expect(updateFacebookUserAccountRepositorySpy.callsCount).toBe(1);
   });
+
+  test("Should update account name when LoadUserAccountByEmailRepository not returns a name", async () => {
+    const loadUserAccountByEmailRepositorySpy =
+      new LoadUserAccountByEmailRepositorySpy();
+    loadUserAccountByEmailRepositorySpy.result = {
+      id: "any_id",
+    };
+    const { sut, updateFacebookUserAccountRepositorySpy } = makeSut({
+      loadUserAccountByEmailRepositorySpy,
+    });
+    await sut.perform({ token });
+    expect(updateFacebookUserAccountRepositorySpy.data).toEqual({
+      id: "any_id",
+      name: "any_facebook_name",
+      facebookId: "any_facebook_id",
+    });
+    expect(updateFacebookUserAccountRepositorySpy.callsCount).toBe(1);
+  });
 });

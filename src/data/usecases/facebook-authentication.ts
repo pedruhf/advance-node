@@ -23,10 +23,10 @@ export class FacebookAuthenticationUsecase {
         email: fbData?.email,
       });
 
-      if (accountData && accountData.name) {
+      if (accountData) {
         await this.updateFacebookUserAccountRepository.update({
           id: accountData.id,
-          name: accountData.name,
+          name: accountData.name ?? fbData.name,
           facebookId: fbData.facebookId,
         });
       } else {

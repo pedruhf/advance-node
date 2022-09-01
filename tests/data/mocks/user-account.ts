@@ -28,7 +28,6 @@ export class CreateUserAccountByFacebookRepositorySpy
 {
   data?: CreateUserAccountByFacebookRepository.Params;
   callsCount = 0;
-  result? = undefined;
 
   async create(
     params: CreateUserAccountByFacebookRepository.Params
@@ -43,13 +42,11 @@ export class UpdateFacebookUserAccountRepositorySpy
 {
   data?: UpdateFacebookUserAccountRepository.Params;
   callsCount = 0;
-  result? = undefined;
 
   async update(
     params: UpdateFacebookUserAccountRepository.Params
   ): Promise<UpdateFacebookUserAccountRepository.Result> {
     this.callsCount++;
     this.data = params;
-    return this.result;
   }
 }
