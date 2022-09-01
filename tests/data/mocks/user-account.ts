@@ -1,51 +1,34 @@
 import {
-  CreateUserAccountByFacebookRepository,
-  LoadUserAccountByEmailRepository,
-  UpdateFacebookUserAccountRepository,
+  LoadUserAccountByEmailRepo,
+  SaveFacebookAccountRepo,
 } from "@/data/repos";
 
-export class LoadUserAccountByEmailRepositorySpy
-  implements LoadUserAccountByEmailRepository
+export class LoadUserAccountByEmailRepoSpy
+  implements LoadUserAccountByEmailRepo
 {
   email?: string;
   callsCount = 0;
-  result?: LoadUserAccountByEmailRepository.Result = {
+  result?: LoadUserAccountByEmailRepo.Result = {
     id: "any_id",
     name: "any_name",
   };
 
   async load(
-    params: LoadUserAccountByEmailRepository.Params
-  ): Promise<LoadUserAccountByEmailRepository.Result> {
+    params: LoadUserAccountByEmailRepo.Params
+  ): Promise<LoadUserAccountByEmailRepo.Result> {
     this.email = params.email;
     this.callsCount++;
     return this.result;
   }
 }
 
-export class CreateUserAccountByFacebookRepositorySpy
-  implements CreateUserAccountByFacebookRepository
-{
-  data?: CreateUserAccountByFacebookRepository.Params;
+export class SaveFacebookAccountRepoSpy implements SaveFacebookAccountRepo {
+  data?: SaveFacebookAccountRepo.Params;
   callsCount = 0;
 
-  async create(
-    params: CreateUserAccountByFacebookRepository.Params
-  ): Promise<CreateUserAccountByFacebookRepository.Result> {
-    this.callsCount++;
-    this.data = params;
-  }
-}
-
-export class UpdateFacebookUserAccountRepositorySpy
-  implements UpdateFacebookUserAccountRepository
-{
-  data?: UpdateFacebookUserAccountRepository.Params;
-  callsCount = 0;
-
-  async update(
-    params: UpdateFacebookUserAccountRepository.Params
-  ): Promise<UpdateFacebookUserAccountRepository.Result> {
+  async saveWithFacebook(
+    params: SaveFacebookAccountRepo.Params
+  ): Promise<SaveFacebookAccountRepo.Result> {
     this.callsCount++;
     this.data = params;
   }

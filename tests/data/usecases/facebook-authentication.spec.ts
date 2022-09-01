@@ -1,46 +1,40 @@
 import { AuthenticationError } from "@/domain/errors";
 import { FacebookAuthenticationUsecase } from "@/data/usecases";
 import {
-  CreateUserAccountByFacebookRepositorySpy,
+  SaveFacebookAccountRepoSpy,
   LoadFacebookUserApiSpy,
-  LoadUserAccountByEmailRepositorySpy,
-  UpdateFacebookUserAccountRepositorySpy,
+  LoadUserAccountByEmailRepoSpy,
 } from "@/tests/data/mocks";
 
 type SutTypes = {
   sut: FacebookAuthenticationUsecase;
   loadFacebookUserApiSpy: LoadFacebookUserApiSpy;
-  loadUserAccountByEmailRepositorySpy: LoadUserAccountByEmailRepositorySpy;
-  createUserAccountByFacebookRepositorySpy: CreateUserAccountByFacebookRepositorySpy;
-  updateFacebookUserAccountRepositorySpy: UpdateFacebookUserAccountRepositorySpy;
+  loadUserAccountByEmailRepoSpy: LoadUserAccountByEmailRepoSpy;
+  saveFacebookAccountRepoSpy: SaveFacebookAccountRepoSpy;
 };
 
 type SutParams = {
   loadFacebookUserApiSpy?: LoadFacebookUserApiSpy;
-  loadUserAccountByEmailRepositorySpy?: LoadUserAccountByEmailRepositorySpy;
-  createUserAccountByFacebookRepositorySpy?: CreateUserAccountByFacebookRepositorySpy;
-  updateFacebookUserAccountRepositorySpy?: UpdateFacebookUserAccountRepositorySpy;
+  loadUserAccountByEmailRepoSpy?: LoadUserAccountByEmailRepoSpy;
+  saveFacebookAccountRepoSpy?: SaveFacebookAccountRepoSpy;
 };
 
 const makeSut = ({
   loadFacebookUserApiSpy = new LoadFacebookUserApiSpy(),
-  loadUserAccountByEmailRepositorySpy = new LoadUserAccountByEmailRepositorySpy(),
-  createUserAccountByFacebookRepositorySpy = new CreateUserAccountByFacebookRepositorySpy(),
-  updateFacebookUserAccountRepositorySpy = new UpdateFacebookUserAccountRepositorySpy(),
+  loadUserAccountByEmailRepoSpy = new LoadUserAccountByEmailRepoSpy(),
+  saveFacebookAccountRepoSpy = new SaveFacebookAccountRepoSpy(),
 }: SutParams = {}): SutTypes => {
   const sut = new FacebookAuthenticationUsecase(
     loadFacebookUserApiSpy,
-    loadUserAccountByEmailRepositorySpy,
-    createUserAccountByFacebookRepositorySpy,
-    updateFacebookUserAccountRepositorySpy
+    loadUserAccountByEmailRepoSpy,
+    saveFacebookAccountRepoSpy
   );
 
   return {
     sut,
     loadFacebookUserApiSpy,
-    loadUserAccountByEmailRepositorySpy,
-    createUserAccountByFacebookRepositorySpy,
-    updateFacebookUserAccountRepositorySpy,
+    loadUserAccountByEmailRepoSpy,
+    saveFacebookAccountRepoSpy,
   };
 };
 
@@ -68,53 +62,51 @@ describe("FacebookAuthentication Usecase", () => {
     expect(authResult).toEqual(new AuthenticationError());
   });
 
-  test("Should call LoadUserAccountByEmailRepository when LoadFacebookUserApi returns data", async () => {
-    const { sut, loadUserAccountByEmailRepositorySpy } = makeSut();
+  test("Should call LoadUserAccountByEmailRepo when LoadFacebookUserApi returns data", async () => {
+    const { sut, loadUserAccountByEmailRepoSpy } = makeSut();
     await sut.perform({ token });
-    expect(loadUserAccountByEmailRepositorySpy.email).toBe(email);
-    expect(loadUserAccountByEmailRepositorySpy.callsCount).toBe(1);
+    expect(loadUserAccountByEmailRepoSpy.email).toBe(email);
+    expect(loadUserAccountByEmailRepoSpy.callsCount).toBe(1);
   });
 
-  test("Should call CreateUserAccountByFacebookRepositorySpy when LoadUserAccountByEmailRepository returns undefined", async () => {
-    const loadUserAccountByEmailRepositorySpy =
-      new LoadUserAccountByEmailRepositorySpy();
-    loadUserAccountByEmailRepositorySpy.result = undefined;
-    const { sut, createUserAccountByFacebookRepositorySpy } = makeSut({
-      loadUserAccountByEmailRepositorySpy,
+  test("Should call SaveFacebookAccountRepoSpy when LoadUserAccountByEmailRepo returns undefined", async () => {
+    const loadUserAccountByEmailRepoSpy = new LoadUserAccountByEmailRepoSpy();
+    loadUserAccountByEmailRepoSpy.result = undefined;
+    const { sut, saveFacebookAccountRepoSpy } = makeSut({
+      loadUserAccountByEmailRepoSpy,
     });
     await sut.perform({ token });
-    expect(createUserAccountByFacebookRepositorySpy.data).toEqual(
-      facebookUserData
-    );
-    expect(createUserAccountByFacebookRepositorySpy.callsCount).toBe(1);
+    expect(saveFacebookAccountRepoSpy.data).toEqual(facebookUserData);
+    expect(saveFacebookAccountRepoSpy.callsCount).toBe(1);
   });
 
-  test("Should call UpdateFacebookUserAccountRepositorySpy when LoadUserAccountByEmailRepository returns data", async () => {
-    const { sut, updateFacebookUserAccountRepositorySpy } = makeSut();
+  test("Should call SaveFacebookAccountRepoSpy when LoadUserAccountByEmailRepo returns data", async () => {
+    const { sut, saveFacebookAccountRepoSpy } = makeSut();
     await sut.perform({ token });
-    expect(updateFacebookUserAccountRepositorySpy.data).toEqual({
+    expect(saveFacebookAccountRepoSpy.data).toEqual({
       id: "any_id",
       name: "any_name",
+      email: "any_facebook_email",
       facebookId: "any_facebook_id",
     });
-    expect(updateFacebookUserAccountRepositorySpy.callsCount).toBe(1);
+    expect(saveFacebookAccountRepoSpy.callsCount).toBe(1);
   });
 
-  test("Should update account name when LoadUserAccountByEmailRepository not returns a name", async () => {
-    const loadUserAccountByEmailRepositorySpy =
-      new LoadUserAccountByEmailRepositorySpy();
-    loadUserAccountByEmailRepositorySpy.result = {
+  test("Should update account name when LoadUserAccountByEmailRepo not returns a name", async () => {
+    const loadUserAccountByEmailRepoSpy = new LoadUserAccountByEmailRepoSpy();
+    loadUserAccountByEmailRepoSpy.result = {
       id: "any_id",
     };
-    const { sut, updateFacebookUserAccountRepositorySpy } = makeSut({
-      loadUserAccountByEmailRepositorySpy,
+    const { sut, saveFacebookAccountRepoSpy } = makeSut({
+      loadUserAccountByEmailRepoSpy,
     });
     await sut.perform({ token });
-    expect(updateFacebookUserAccountRepositorySpy.data).toEqual({
+    expect(saveFacebookAccountRepoSpy.data).toEqual({
       id: "any_id",
       name: "any_facebook_name",
+      email: "any_facebook_email",
       facebookId: "any_facebook_id",
     });
-    expect(updateFacebookUserAccountRepositorySpy.callsCount).toBe(1);
+    expect(saveFacebookAccountRepoSpy.callsCount).toBe(1);
   });
 });
