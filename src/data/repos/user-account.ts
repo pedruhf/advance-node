@@ -9,5 +9,21 @@ export namespace LoadUserAccountByEmailRepository {
     email: string;
   };
 
+  export type Result = undefined;
+}
+
+export interface CreateUserAccountByFacebookRepository {
+  create: (
+    params: CreateUserAccountByFacebookRepository.Params
+  ) => Promise<CreateUserAccountByFacebookRepository.Result>;
+}
+
+export namespace CreateUserAccountByFacebookRepository {
+  export type Params = {
+    email: string;
+    name: string;
+    facebookId: string;
+  };
+
   export type Result = void;
 }
