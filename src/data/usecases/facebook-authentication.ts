@@ -9,24 +9,24 @@ import {
 export class FacebookAuthenticationUsecase {
   constructor(
     private readonly loadFacebookUserApi: LoadFacebookUserApi,
-    private readonly loadUserAccountByEmailRepo: LoadUserAccountByEmailRepo,
-    private readonly saveFacebookAccountRepo: SaveFacebookAccountRepo
+    private readonly userAccount: LoadUserAccountByEmailRepo &
+      SaveFacebookAccountRepo
   ) {}
   async perform(
     params: FacebookAuthentication.Params
-  ): Promise<AuthenticationError> {
+  ): Promise<AuthenticationError | undefined> {
     const fbData = await this.loadFacebookUserApi.loadUser(params);
-    if (fbData) {
-      const accountData = await this.loadUserAccountByEmailRepo.load({
-        email: fbData?.email,
-      });
-      await this.saveFacebookAccountRepo.saveWithFacebook({
-        id: accountData?.id,
-        name: accountData?.name ?? fbData.name,
-        email: fbData.email,
-        facebookId: fbData.facebookId,
-      });
+    if (!fbData) {
+      return new AuthenticationError();
     }
-    return new AuthenticationError();
+    const accountData = await this.userAccount.loadUser({
+      email: fbData?.email,
+    });
+    await this.userAccount.saveWithFacebook({
+      id: accountData?.id,
+      name: accountData?.name ?? fbData.name,
+      email: fbData.email,
+      facebookId: fbData.facebookId,
+    });
   }
 }

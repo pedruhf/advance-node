@@ -1,40 +1,31 @@
 import { AuthenticationError } from "@/domain/errors";
 import { FacebookAuthenticationUsecase } from "@/data/usecases";
-import {
-  SaveFacebookAccountRepoSpy,
-  LoadFacebookUserApiSpy,
-  LoadUserAccountByEmailRepoSpy,
-} from "@/tests/data/mocks";
+import { LoadFacebookUserApiSpy, UserAccountSpy } from "@/tests/data/mocks";
 
 type SutTypes = {
   sut: FacebookAuthenticationUsecase;
   loadFacebookUserApiSpy: LoadFacebookUserApiSpy;
-  loadUserAccountByEmailRepoSpy: LoadUserAccountByEmailRepoSpy;
-  saveFacebookAccountRepoSpy: SaveFacebookAccountRepoSpy;
+  userAccountSpy: UserAccountSpy;
 };
 
 type SutParams = {
   loadFacebookUserApiSpy?: LoadFacebookUserApiSpy;
-  loadUserAccountByEmailRepoSpy?: LoadUserAccountByEmailRepoSpy;
-  saveFacebookAccountRepoSpy?: SaveFacebookAccountRepoSpy;
+  userAccountSpy?: UserAccountSpy;
 };
 
 const makeSut = ({
   loadFacebookUserApiSpy = new LoadFacebookUserApiSpy(),
-  loadUserAccountByEmailRepoSpy = new LoadUserAccountByEmailRepoSpy(),
-  saveFacebookAccountRepoSpy = new SaveFacebookAccountRepoSpy(),
+  userAccountSpy = new UserAccountSpy(),
 }: SutParams = {}): SutTypes => {
   const sut = new FacebookAuthenticationUsecase(
     loadFacebookUserApiSpy,
-    loadUserAccountByEmailRepoSpy,
-    saveFacebookAccountRepoSpy
+    userAccountSpy
   );
 
   return {
     sut,
     loadFacebookUserApiSpy,
-    loadUserAccountByEmailRepoSpy,
-    saveFacebookAccountRepoSpy,
+    userAccountSpy,
   };
 };
 
@@ -63,50 +54,50 @@ describe("FacebookAuthentication Usecase", () => {
   });
 
   test("Should call LoadUserAccountByEmailRepo when LoadFacebookUserApi returns data", async () => {
-    const { sut, loadUserAccountByEmailRepoSpy } = makeSut();
+    const { sut, userAccountSpy } = makeSut();
     await sut.perform({ token });
-    expect(loadUserAccountByEmailRepoSpy.email).toBe(email);
-    expect(loadUserAccountByEmailRepoSpy.callsCount).toBe(1);
+    expect(userAccountSpy.loadUserEmail).toBe(email);
+    expect(userAccountSpy.loadUserCallsCount).toBe(1);
   });
 
   test("Should call SaveFacebookAccountRepoSpy when LoadUserAccountByEmailRepo returns undefined", async () => {
-    const loadUserAccountByEmailRepoSpy = new LoadUserAccountByEmailRepoSpy();
-    loadUserAccountByEmailRepoSpy.result = undefined;
-    const { sut, saveFacebookAccountRepoSpy } = makeSut({
-      loadUserAccountByEmailRepoSpy,
+    const userAccountSpy = new UserAccountSpy();
+    userAccountSpy.loadUserResult = undefined;
+    const { sut } = makeSut({
+      userAccountSpy,
     });
     await sut.perform({ token });
-    expect(saveFacebookAccountRepoSpy.data).toEqual(facebookUserData);
-    expect(saveFacebookAccountRepoSpy.callsCount).toBe(1);
+    expect(userAccountSpy.saveWithFacebookData).toEqual(facebookUserData);
+    expect(userAccountSpy.saveWithFacebookCallsCount).toBe(1);
   });
 
   test("Should call SaveFacebookAccountRepoSpy when LoadUserAccountByEmailRepo returns data", async () => {
-    const { sut, saveFacebookAccountRepoSpy } = makeSut();
+    const { sut, userAccountSpy } = makeSut();
     await sut.perform({ token });
-    expect(saveFacebookAccountRepoSpy.data).toEqual({
+    expect(userAccountSpy.saveWithFacebookData).toEqual({
       id: "any_id",
       name: "any_name",
       email: "any_facebook_email",
       facebookId: "any_facebook_id",
     });
-    expect(saveFacebookAccountRepoSpy.callsCount).toBe(1);
+    expect(userAccountSpy.saveWithFacebookCallsCount).toBe(1);
   });
 
   test("Should update account name when LoadUserAccountByEmailRepo not returns a name", async () => {
-    const loadUserAccountByEmailRepoSpy = new LoadUserAccountByEmailRepoSpy();
-    loadUserAccountByEmailRepoSpy.result = {
+    const userAccountSpy = new UserAccountSpy();
+    userAccountSpy.loadUserResult = {
       id: "any_id",
     };
-    const { sut, saveFacebookAccountRepoSpy } = makeSut({
-      loadUserAccountByEmailRepoSpy,
+    const { sut } = makeSut({
+      userAccountSpy,
     });
     await sut.perform({ token });
-    expect(saveFacebookAccountRepoSpy.data).toEqual({
+    expect(userAccountSpy.saveWithFacebookData).toEqual({
       id: "any_id",
       name: "any_facebook_name",
       email: "any_facebook_email",
       facebookId: "any_facebook_id",
     });
-    expect(saveFacebookAccountRepoSpy.callsCount).toBe(1);
+    expect(userAccountSpy.saveWithFacebookCallsCount).toBe(1);
   });
 });
