@@ -1,11 +1,8 @@
 import { FacebookAccount } from "@/domain/models";
+import { accountModelmock, fbModelMock } from "../mocks";
 
 describe("FacebookAccount", () => {
-  const fbData = {
-    name: "any_facebook_name",
-    email: "any_facebook_email",
-    facebookId: "any_facebook_id",
-  };
+  const fbData = fbModelMock();
 
   test("Should create with facebook data only", () => {
     const sut = new FacebookAccount(fbData);
@@ -28,10 +25,7 @@ describe("FacebookAccount", () => {
   });
 
   test("Should not update name if its not empty", () => {
-    const accountData = {
-      id: "any_id",
-      name: "any_name",
-    };
+    const accountData = accountModelmock();
 
     const sut = new FacebookAccount(fbData, accountData);
 
