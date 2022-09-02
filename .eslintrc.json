@@ -15,6 +15,8 @@
     "@typescript-eslint/no-empty-function": "off",
     "no-extra-parens": "off",
     "semi": "error",
-    "quotes": "error"
+    "quotes": "error",
+    "max-len": "off",
+    "operator-linebreak": "off"
   }
 }

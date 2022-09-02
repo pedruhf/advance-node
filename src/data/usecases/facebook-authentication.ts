@@ -5,6 +5,7 @@ import {
   SaveFacebookAccountRepo,
   LoadUserAccountByEmailRepo,
 } from "@/data/repos";
+import { FacebookAccount } from "@/domain/models";
 
 export class FacebookAuthenticationUsecase {
   constructor(
@@ -22,11 +23,7 @@ export class FacebookAuthenticationUsecase {
     const accountData = await this.userAccount.loadUser({
       email: fbData?.email,
     });
-    await this.userAccount.saveWithFacebook({
-      id: accountData?.id,
-      name: accountData?.name ?? fbData.name,
-      email: fbData.email,
-      facebookId: fbData.facebookId,
-    });
+    const facebookAccount = new FacebookAccount(fbData, accountData);
+    await this.userAccount.saveWithFacebook(facebookAccount);
   }
 }
