@@ -1,6 +1,11 @@
+import { mocked } from "ts-jest/utils";
 import { AuthenticationError } from "@/domain/errors";
 import { FacebookAuthenticationUsecase } from "@/data/usecases";
 import { LoadFacebookUserApiSpy, UserAccountSpy } from "@/tests/data/mocks";
+import { fbModelMock } from "@/tests/domain/mocks";
+import { FacebookAccount } from "@/domain/models";
+
+jest.mock("@/domain/models/facebook-account");
 
 type SutTypes = {
   sut: FacebookAuthenticationUsecase;
@@ -31,12 +36,7 @@ const makeSut = ({
 
 describe("FacebookAuthentication Usecase", () => {
   const token = "any_token";
-  const email = "any_facebook_email";
-  const facebookUserData = {
-    email: "any_facebook_email",
-    name: "any_facebook_name",
-    facebookId: "any_facebook_id",
-  };
+  const facebookUserData = fbModelMock();
 
   test("Should call LoadFacebookUserApi with correct params", async () => {
     const { sut, loadFacebookUserApiSpy } = makeSut();
@@ -56,47 +56,19 @@ describe("FacebookAuthentication Usecase", () => {
   test("Should call LoadUserAccountByEmailRepo when LoadFacebookUserApi returns data", async () => {
     const { sut, userAccountSpy } = makeSut();
     await sut.perform({ token });
-    expect(userAccountSpy.loadUserEmail).toBe(email);
+    expect(userAccountSpy.loadUserEmail).toBe(facebookUserData.email);
     expect(userAccountSpy.loadUserCallsCount).toBe(1);
   });
 
-  test("Should call SaveFacebookAccountRepoSpy when LoadUserAccountByEmailRepo returns undefined", async () => {
-    const userAccountSpy = new UserAccountSpy();
-    userAccountSpy.loadUserResult = undefined;
-    const { sut } = makeSut({
-      userAccountSpy,
-    });
-    await sut.perform({ token });
-    expect(userAccountSpy.saveWithFacebookData).toEqual(facebookUserData);
-    expect(userAccountSpy.saveWithFacebookCallsCount).toBe(1);
-  });
-
-  test("Should call SaveFacebookAccountRepoSpy when LoadUserAccountByEmailRepo returns data", async () => {
+  test("Should call SaveFacebookAccountRepoSpy with facebookAccount when LoadFacebookUserApi returns undefined", async () => {
+    const facebookAccountStub = jest.fn().mockImplementation(() => ({
+      anyField: "any_value",
+    }));
+    mocked(FacebookAccount).mockImplementation(facebookAccountStub);
     const { sut, userAccountSpy } = makeSut();
     await sut.perform({ token });
     expect(userAccountSpy.saveWithFacebookData).toEqual({
-      id: "any_id",
-      name: "any_name",
-      email: "any_facebook_email",
-      facebookId: "any_facebook_id",
-    });
-    expect(userAccountSpy.saveWithFacebookCallsCount).toBe(1);
-  });
-
-  test("Should update account name when LoadUserAccountByEmailRepo not returns a name", async () => {
-    const userAccountSpy = new UserAccountSpy();
-    userAccountSpy.loadUserResult = {
-      id: "any_id",
-    };
-    const { sut } = makeSut({
-      userAccountSpy,
-    });
-    await sut.perform({ token });
-    expect(userAccountSpy.saveWithFacebookData).toEqual({
-      id: "any_id",
-      name: "any_facebook_name",
-      email: "any_facebook_email",
-      facebookId: "any_facebook_id",
+      anyField: "any_value",
     });
     expect(userAccountSpy.saveWithFacebookCallsCount).toBe(1);
   });
