@@ -8,7 +8,7 @@ import {
 } from "@/data/repos";
 import { TokenGenerator } from "@/data/contracts/crypto";
 
-export class FacebookAuthenticationUsecase {
+export class FacebookAuthenticationUsecase implements FacebookAuthentication {
   constructor(
     private readonly loadFacebookUserApi: LoadFacebookUserApi,
     private readonly userAccount: LoadUserAccountByEmailRepo &
@@ -17,7 +17,7 @@ export class FacebookAuthenticationUsecase {
   ) {}
   async perform(
     params: FacebookAuthentication.Params
-  ): Promise<AuthenticationError | undefined> {
+  ): Promise<FacebookAuthentication.Result> {
     const fbData = await this.loadFacebookUserApi.loadUser(params);
     if (!fbData) {
       return new AuthenticationError();
@@ -27,9 +27,10 @@ export class FacebookAuthenticationUsecase {
     });
     const facebookAccount = new FacebookAccount(fbData, accountData);
     const { id } = await this.userAccount.saveWithFacebook(facebookAccount);
-    await this.tokenGenerator.generate({
+    const accessToken = await this.tokenGenerator.generate({
       key: id,
       expirationInMs: AccessToken.expirationInMs,
     });
+    return new AccessToken(accessToken);
   }
 }

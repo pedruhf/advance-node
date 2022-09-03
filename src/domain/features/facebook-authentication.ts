@@ -4,7 +4,7 @@ import { AuthenticationError } from "@/domain/errors";
 export interface FacebookAuthentication {
   perform: (
     params: FacebookAuthentication.Params
-  ) => FacebookAuthentication.Result;
+  ) => Promise<FacebookAuthentication.Result>;
 }
 
 export namespace FacebookAuthentication {

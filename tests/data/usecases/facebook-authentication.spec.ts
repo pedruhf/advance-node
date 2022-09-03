@@ -10,10 +10,14 @@ jest.mock("@/domain/models/facebook-account");
 class TokenGeneratorSpy implements TokenGenerator {
   callsCount = 0;
   data?: TokenGenerator.Params;
+  result = "any_generated_token";
 
-  async generate(params: TokenGenerator.Params): Promise<void> {
+  async generate(
+    params: TokenGenerator.Params
+  ): Promise<TokenGenerator.Result> {
     this.callsCount++;
     this.data = params;
+    return this.result;
   }
 }
 
@@ -96,5 +100,11 @@ describe("FacebookAuthentication Usecase", () => {
       expirationInMs: AccessToken.expirationInMs,
     });
     expect(tokenGeneratorSpy.callsCount).toBe(1);
+  });
+
+  test("Should return an AccessToken on success", async () => {
+    const { sut } = makeSut();
+    const authResult = await sut.perform({ token });
+    expect(authResult).toEqual(new AccessToken("any_generated_token"));
   });
 });
