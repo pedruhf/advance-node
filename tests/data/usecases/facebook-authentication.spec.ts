@@ -1,36 +1,51 @@
-import { mocked } from "ts-jest/utils";
+import { FacebookAccount } from "@/domain/models";
 import { AuthenticationError } from "@/domain/errors";
 import { FacebookAuthenticationUsecase } from "@/data/usecases";
+import { TokenGenerator } from "@/data/contracts/crypto";
 import { LoadFacebookUserApiSpy, UserAccountSpy } from "@/tests/data/mocks";
 import { fbModelMock } from "@/tests/domain/mocks";
-import { FacebookAccount } from "@/domain/models";
 
 jest.mock("@/domain/models/facebook-account");
+
+class TokenGeneratorSpy implements TokenGenerator {
+  callsCount = 0;
+  data?: TokenGenerator.Params;
+
+  async generate(params: TokenGenerator.Params): Promise<void> {
+    this.callsCount++;
+    this.data = params;
+  }
+}
 
 type SutTypes = {
   sut: FacebookAuthenticationUsecase;
   loadFacebookUserApiSpy: LoadFacebookUserApiSpy;
   userAccountSpy: UserAccountSpy;
+  tokenGeneratorSpy: TokenGeneratorSpy;
 };
 
 type SutParams = {
   loadFacebookUserApiSpy?: LoadFacebookUserApiSpy;
   userAccountSpy?: UserAccountSpy;
+  tokenGeneratorSpy?: TokenGeneratorSpy;
 };
 
 const makeSut = ({
   loadFacebookUserApiSpy = new LoadFacebookUserApiSpy(),
   userAccountSpy = new UserAccountSpy(),
+  tokenGeneratorSpy = new TokenGeneratorSpy(),
 }: SutParams = {}): SutTypes => {
   const sut = new FacebookAuthenticationUsecase(
     loadFacebookUserApiSpy,
-    userAccountSpy
+    userAccountSpy,
+    tokenGeneratorSpy
   );
 
   return {
     sut,
     loadFacebookUserApiSpy,
     userAccountSpy,
+    tokenGeneratorSpy,
   };
 };
 
@@ -60,16 +75,25 @@ describe("FacebookAuthentication Usecase", () => {
     expect(userAccountSpy.loadUserCallsCount).toBe(1);
   });
 
-  test("Should call SaveFacebookAccountRepoSpy with facebookAccount when LoadFacebookUserApi returns undefined", async () => {
+  test("Should call SaveFacebookAccountRepo with facebookAccount when LoadFacebookUserApi returns undefined", async () => {
     const facebookAccountStub = jest.fn().mockImplementation(() => ({
       anyField: "any_value",
     }));
-    mocked(FacebookAccount).mockImplementation(facebookAccountStub);
+    jest.mocked(FacebookAccount).mockImplementation(facebookAccountStub);
     const { sut, userAccountSpy } = makeSut();
     await sut.perform({ token });
     expect(userAccountSpy.saveWithFacebookData).toEqual({
       anyField: "any_value",
     });
     expect(userAccountSpy.saveWithFacebookCallsCount).toBe(1);
+  });
+
+  test("Should call TokenGenerator with correct params", async () => {
+    const { sut, tokenGeneratorSpy } = makeSut();
+    await sut.perform({ token });
+    expect(tokenGeneratorSpy.data).toEqual({
+      key: "any_account_id",
+    });
+    expect(tokenGeneratorSpy.callsCount).toBe(1);
   });
 });

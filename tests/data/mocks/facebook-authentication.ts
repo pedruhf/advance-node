@@ -1,13 +1,10 @@
 import { LoadFacebookUserApi } from "@/data/contracts/apis";
+import { fbModelMock } from "../../domain/mocks";
 
 export class LoadFacebookUserApiSpy implements LoadFacebookUserApi {
   token?: string;
   callsCount = 0;
-  result?: LoadFacebookUserApi.Result = {
-    name: "any_facebook_name",
-    email: "any_facebook_email",
-    facebookId: "any_facebook_id",
-  };
+  result?: LoadFacebookUserApi.Result = fbModelMock();
 
   async loadUser(
     params: LoadFacebookUserApi.Params

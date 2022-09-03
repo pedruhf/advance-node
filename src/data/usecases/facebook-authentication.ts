@@ -1,3 +1,4 @@
+import { FacebookAccount } from "@/domain/models";
 import { AuthenticationError } from "@/domain/errors";
 import { FacebookAuthentication } from "@/domain/features";
 import { LoadFacebookUserApi } from "@/data/contracts/apis/facebook";
@@ -5,13 +6,14 @@ import {
   SaveFacebookAccountRepo,
   LoadUserAccountByEmailRepo,
 } from "@/data/repos";
-import { FacebookAccount } from "@/domain/models";
+import { TokenGenerator } from "@/data/contracts/crypto";
 
 export class FacebookAuthenticationUsecase {
   constructor(
     private readonly loadFacebookUserApi: LoadFacebookUserApi,
     private readonly userAccount: LoadUserAccountByEmailRepo &
-      SaveFacebookAccountRepo
+      SaveFacebookAccountRepo,
+    private readonly tokenGenerator: TokenGenerator
   ) {}
   async perform(
     params: FacebookAuthentication.Params
@@ -24,6 +26,7 @@ export class FacebookAuthenticationUsecase {
       email: fbData?.email,
     });
     const facebookAccount = new FacebookAccount(fbData, accountData);
-    await this.userAccount.saveWithFacebook(facebookAccount);
+    const { id } = await this.userAccount.saveWithFacebook(facebookAccount);
+    await this.tokenGenerator.generate({ key: id });
   }
 }

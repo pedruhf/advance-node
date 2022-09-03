@@ -8,13 +8,13 @@ export class UserAccountSpy
 {
   loadUserEmail?: string;
   loadUserCallsCount = 0;
-  loadUserResult?: LoadUserAccountByEmailRepo.Result = {
-    id: "any_id",
-    name: "any_name",
-  };
+  loadUserResult?: LoadUserAccountByEmailRepo.Result = undefined;
 
   saveWithFacebookData?: SaveFacebookAccountRepo.Params;
   saveWithFacebookCallsCount = 0;
+  saveWithFacebookResult: SaveFacebookAccountRepo.Result = {
+    id: "any_account_id",
+  };
 
   async loadUser(
     params: LoadUserAccountByEmailRepo.Params
@@ -29,5 +29,6 @@ export class UserAccountSpy
   ): Promise<SaveFacebookAccountRepo.Result> {
     this.saveWithFacebookCallsCount++;
     this.saveWithFacebookData = params;
+    return this.saveWithFacebookResult;
   }
 }
