@@ -1,4 +1,4 @@
-import { FacebookAccount } from "@/domain/models";
+import { AccessToken, FacebookAccount } from "@/domain/models";
 import { AuthenticationError } from "@/domain/errors";
 import { FacebookAuthenticationUsecase } from "@/data/usecases";
 import { TokenGenerator } from "@/data/contracts/crypto";
@@ -93,6 +93,7 @@ describe("FacebookAuthentication Usecase", () => {
     await sut.perform({ token });
     expect(tokenGeneratorSpy.data).toEqual({
       key: "any_account_id",
+      expirationInMs: AccessToken.expirationInMs,
     });
     expect(tokenGeneratorSpy.callsCount).toBe(1);
   });

@@ -1,4 +1,4 @@
-import { FacebookAccount } from "@/domain/models";
+import { AccessToken, FacebookAccount } from "@/domain/models";
 import { AuthenticationError } from "@/domain/errors";
 import { FacebookAuthentication } from "@/domain/features";
 import { LoadFacebookUserApi } from "@/data/contracts/apis/facebook";
@@ -27,6 +27,9 @@ export class FacebookAuthenticationUsecase {
     });
     const facebookAccount = new FacebookAccount(fbData, accountData);
     const { id } = await this.userAccount.saveWithFacebook(facebookAccount);
-    await this.tokenGenerator.generate({ key: id });
+    await this.tokenGenerator.generate({
+      key: id,
+      expirationInMs: AccessToken.expirationInMs,
+    });
   }
 }
