@@ -1,25 +1,14 @@
 import { AccessToken, FacebookAccount } from "@/domain/models";
 import { AuthenticationError } from "@/domain/errors";
 import { FacebookAuthenticationUsecase } from "@/data/usecases";
-import { TokenGenerator } from "@/data/contracts/crypto";
-import { LoadFacebookUserApiSpy, UserAccountSpy } from "@/tests/data/mocks";
+import {
+  LoadFacebookUserApiSpy,
+  TokenGeneratorSpy,
+  UserAccountSpy,
+} from "@/tests/data/mocks";
 import { fbModelMock } from "@/tests/domain/mocks";
 
 jest.mock("@/domain/models/facebook-account");
-
-class TokenGeneratorSpy implements TokenGenerator {
-  callsCount = 0;
-  data?: TokenGenerator.Params;
-  result = "any_generated_token";
-
-  async generate(
-    params: TokenGenerator.Params
-  ): Promise<TokenGenerator.Result> {
-    this.callsCount++;
-    this.data = params;
-    return this.result;
-  }
-}
 
 type SutTypes = {
   sut: FacebookAuthenticationUsecase;
@@ -59,7 +48,9 @@ describe("FacebookAuthentication Usecase", () => {
 
   test("Should call LoadFacebookUserApi with correct params", async () => {
     const { sut, loadFacebookUserApiSpy } = makeSut();
+
     await sut.perform({ token });
+
     expect(loadFacebookUserApiSpy.token).toBe(token);
     expect(loadFacebookUserApiSpy.callsCount).toBe(1);
   });
@@ -67,14 +58,18 @@ describe("FacebookAuthentication Usecase", () => {
   test("Should return AuthenticationError if LoadFacebookUserApi returns undefined", async () => {
     const loadFacebookUserApiSpy = new LoadFacebookUserApiSpy();
     loadFacebookUserApiSpy.result = undefined;
+
     const { sut } = makeSut({ loadFacebookUserApiSpy });
     const authResult = await sut.perform({ token });
+
     expect(authResult).toEqual(new AuthenticationError());
   });
 
   test("Should call LoadUserAccountByEmailRepo when LoadFacebookUserApi returns data", async () => {
     const { sut, userAccountSpy } = makeSut();
+
     await sut.perform({ token });
+
     expect(userAccountSpy.loadEmail).toBe(facebookUserData.email);
     expect(userAccountSpy.loadCallsCount).toBe(1);
   });
@@ -84,8 +79,10 @@ describe("FacebookAuthentication Usecase", () => {
       anyField: "any_value",
     }));
     jest.mocked(FacebookAccount).mockImplementation(facebookAccountStub);
+
     const { sut, userAccountSpy } = makeSut();
     await sut.perform({ token });
+
     expect(userAccountSpy.saveWithFacebookData).toEqual({
       anyField: "any_value",
     });
@@ -94,7 +91,9 @@ describe("FacebookAuthentication Usecase", () => {
 
   test("Should call TokenGenerator with correct params", async () => {
     const { sut, tokenGeneratorSpy } = makeSut();
+
     await sut.perform({ token });
+
     expect(tokenGeneratorSpy.data).toEqual({
       key: "any_account_id",
       expirationInMs: AccessToken.expirationInMs,
@@ -107,8 +106,10 @@ describe("FacebookAuthentication Usecase", () => {
     jest
       .spyOn(loadFacebookUserApiSpy, "loadUser")
       .mockRejectedValueOnce(new Error("fb_error"));
+
     const { sut } = makeSut({ loadFacebookUserApiSpy });
     const authResultPromise = sut.perform({ token });
+
     await expect(authResultPromise).rejects.toThrow("fb_error");
   });
 
@@ -117,8 +118,10 @@ describe("FacebookAuthentication Usecase", () => {
     jest
       .spyOn(userAccountSpy, "load")
       .mockRejectedValueOnce(new Error("load_error"));
+
     const { sut } = makeSut({ userAccountSpy });
     const authResultPromise = sut.perform({ token });
+
     await expect(authResultPromise).rejects.toThrow("load_error");
   });
 
@@ -127,8 +130,10 @@ describe("FacebookAuthentication Usecase", () => {
     jest
       .spyOn(userAccountSpy, "saveWithFacebook")
       .mockRejectedValueOnce(new Error("save_error"));
+
     const { sut } = makeSut({ userAccountSpy });
     const authResultPromise = sut.perform({ token });
+
     await expect(authResultPromise).rejects.toThrow("save_error");
   });
 
@@ -137,8 +142,10 @@ describe("FacebookAuthentication Usecase", () => {
     jest
       .spyOn(tokenGeneratorSpy, "generate")
       .mockRejectedValueOnce(new Error("token_error"));
+
     const { sut } = makeSut({ tokenGeneratorSpy });
     const authResultPromise = sut.perform({ token });
+
     await expect(authResultPromise).rejects.toThrow("token_error");
   });
 });

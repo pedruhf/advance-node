@@ -26,7 +26,6 @@ describe("FacebookAccount", () => {
 
   test("Should not update name if its not empty", () => {
     const accountData = accountModelmock();
-
     const sut = new FacebookAccount(fbData, accountData);
 
     expect(sut).toEqual({
