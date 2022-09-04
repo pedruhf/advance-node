@@ -1,5 +1,5 @@
 export interface LoadUserAccountByEmailRepo {
-  loadUser: (
+  load: (
     params: LoadUserAccountByEmailRepo.Params
   ) => Promise<LoadUserAccountByEmailRepo.Result>;
 }

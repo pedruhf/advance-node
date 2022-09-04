@@ -22,15 +22,17 @@ export class FacebookAuthenticationUsecase implements FacebookAuthentication {
     if (!fbData) {
       return new AuthenticationError();
     }
-    const accountData = await this.userAccount.loadUser({
+
+    const accountData = await this.userAccount.load({
       email: fbData?.email,
     });
     const facebookAccount = new FacebookAccount(fbData, accountData);
     const { id } = await this.userAccount.saveWithFacebook(facebookAccount);
-    const accessToken = await this.tokenGenerator.generate({
+    const token = await this.tokenGenerator.generate({
       key: id,
       expirationInMs: AccessToken.expirationInMs,
     });
-    return new AccessToken(accessToken);
+
+    return new AccessToken(token);
   }
 }
