@@ -5,7 +5,7 @@ class FacebookApi {
   constructor(
     private readonly httpGetClient: HttpGetClient,
     private readonly clientId: string,
-    private readonly clientSecret: string,
+    private readonly clientSecret: string
   ) {}
 
   async loadUser(params: LoadFacebookUserApi.Params): Promise<void> {
@@ -41,13 +41,27 @@ class HttpGetClientSpy implements HttpGetClient {
   }
 }
 
-describe("FacebookApi", () => {
-  const clientId = "any_client_id";
-  const clientSecret = "any_client_secret";
+const clientId = "any_client_id";
+const clientSecret = "any_client_secret";
 
+type SutTypes = {
+  sut: FacebookApi;
+  htpGetClientSpy: HttpGetClientSpy;
+}
+
+const makeSut = (): SutTypes => {
+  const htpGetClientSpy = new HttpGetClientSpy();
+  const sut = new FacebookApi(htpGetClientSpy, clientId, clientSecret);
+
+  return {
+    sut,
+    htpGetClientSpy,
+  };
+};
+
+describe("FacebookApi", () => {
   test("Should calls HttpGetClient with correct params", async () => {
-    const htpGetClientSpy = new HttpGetClientSpy();
-    const sut = new FacebookApi(htpGetClientSpy, clientId, clientSecret);
+    const { sut, htpGetClientSpy } = makeSut();
 
     await sut.loadUser({ token: "any_client_token" });
 
