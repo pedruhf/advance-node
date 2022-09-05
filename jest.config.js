@@ -11,4 +11,8 @@ module.exports = {
   transform: {
     "\\.ts$": "ts-jest",
   },
+  coveragePathIgnorePatterns: [
+    "<rootDir>/src/main",
+    "index.ts",
+  ],
 };
