@@ -12,7 +12,7 @@ module.exports = {
     "\\.ts$": "ts-jest",
   },
   coveragePathIgnorePatterns: [
-    "<rootDir>/src/main",
+    "<rootDir>/src/main/config",
     "index.ts",
   ],
 };
