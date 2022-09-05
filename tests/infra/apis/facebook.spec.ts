@@ -1,5 +1,6 @@
 import { FacebookApi } from "@/infra/apis";
 import { HttpGetClientSpy } from "@/tests/infra/mocks";
+import { fbModelMock } from "../../domain/mocks";
 
 type SutTypes = {
   sut: FacebookApi;
@@ -64,5 +65,13 @@ describe("FacebookApi", () => {
         access_token: "any_client_token",
       },
     });
+  });
+
+  test("Should return facebook user", async () => {
+    const { sut } = makeSut();
+
+    const facebookUser = await sut.loadUser({ token: "any_client_token" });
+
+    expect(facebookUser).toEqual(fbModelMock());
   });
 });

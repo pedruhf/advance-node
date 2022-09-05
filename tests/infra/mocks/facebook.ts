@@ -6,6 +6,9 @@ export class HttpGetClientSpy implements HttpGetClient {
   result = {
     access_token: "any_app_token",
     data: { user_id: "any_user_id" },
+    id: "any_facebook_id",
+    name: "any_facebook_name",
+    email: "any_facebook_email",
   };
 
   async get(params: HttpGetClient.Params): Promise<HttpGetClient.Result> {
