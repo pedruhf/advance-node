@@ -3,26 +3,26 @@ import { HttpGetClientSpy } from "@/tests/infra/mocks";
 
 type SutTypes = {
   sut: FacebookApi;
-  htpGetClientSpy: HttpGetClientSpy;
+  httpGetClientSpy: HttpGetClientSpy;
 };
 
 const clientId = "any_client_id";
 const clientSecret = "any_client_secret";
 
 const makeSut = (): SutTypes => {
-  const htpGetClientSpy = new HttpGetClientSpy();
-  const sut = new FacebookApi(htpGetClientSpy, clientId, clientSecret);
+  const httpGetClientSpy = new HttpGetClientSpy();
+  const sut = new FacebookApi(httpGetClientSpy, clientId, clientSecret);
 
   return {
     sut,
-    htpGetClientSpy,
+    httpGetClientSpy,
   };
 };
 
 describe("FacebookApi", () => {
   test("Should get app token", async () => {
-    const { sut, htpGetClientSpy } = makeSut();
-    const getSpy = jest.spyOn(htpGetClientSpy, "get");
+    const { sut, httpGetClientSpy } = makeSut();
+    const getSpy = jest.spyOn(httpGetClientSpy, "get");
 
     await sut.loadUser({ token: "any_client_token" });
 
@@ -37,8 +37,8 @@ describe("FacebookApi", () => {
   });
 
   test("Should get debug token", async () => {
-    const { sut, htpGetClientSpy } = makeSut();
-    const getSpy = jest.spyOn(htpGetClientSpy, "get");
+    const { sut, httpGetClientSpy } = makeSut();
+    const getSpy = jest.spyOn(httpGetClientSpy, "get");
 
     await sut.loadUser({ token: "any_client_token" });
 
@@ -47,6 +47,21 @@ describe("FacebookApi", () => {
       params: {
         access_token: "any_app_token",
         input_token: "any_client_token",
+      },
+    });
+  });
+
+  test("Should get user info", async () => {
+    const { sut, httpGetClientSpy } = makeSut();
+    const getSpy = jest.spyOn(httpGetClientSpy, "get");
+
+    await sut.loadUser({ token: "any_client_token" });
+
+    expect(getSpy).toHaveBeenCalledWith({
+      url: "https://graph.facebook.com/any_user_id",
+      params: {
+        fields: "id,name,email",
+        access_token: "any_client_token",
       },
     });
   });
