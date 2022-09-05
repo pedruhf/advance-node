@@ -16,7 +16,6 @@
     "no-extra-parens": "off",
     "semi": "error",
     "quotes": "error",
-    "max-len": "off",
-    "operator-linebreak": "off"
+    "max-len": ["error", { "code": 140 }]
   }
 }

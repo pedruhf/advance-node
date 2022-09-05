@@ -11,8 +11,7 @@ import { TokenGenerator } from "@/data/contracts/crypto";
 export class FacebookAuthenticationUsecase implements FacebookAuthentication {
   constructor(
     private readonly loadFacebookUserApi: LoadFacebookUserApi,
-    private readonly userAccount: LoadUserAccountByEmailRepo &
-      SaveFacebookAccountRepo,
+    private readonly userAccount: LoadUserAccountByEmailRepo & SaveFacebookAccountRepo, 
     private readonly tokenGenerator: TokenGenerator
   ) {}
   async perform(
