@@ -11,7 +11,7 @@ export class HttpGetClientSpy implements HttpGetClient {
     email: "any_facebook_email",
   };
 
-  async get(params: HttpGetClient.Params): Promise<HttpGetClient.Result> {
+  async get(params: HttpGetClient.Params): Promise<any> {
     this.url = params.url;
     this.params = params.params;
     return this.result;
