@@ -17,7 +17,7 @@ export class PgUserAccountRepo implements LoadUserAccountByEmailRepo, SaveFacebo
 
     return {
       id: pgUser.id.toString(),
-      ...(pgUser.name && { name: pgUser.name }),
+      name: pgUser.name ?? undefined,
     };
   }
 
