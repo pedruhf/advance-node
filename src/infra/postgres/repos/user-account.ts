@@ -23,14 +23,17 @@ export class PgUserAccountRepo implements LoadUserAccountByEmailRepo {
 
   async saveWithFacebook(
     params: SaveFacebookAccountRepo.Params
-  ): Promise<void> {
+  ): Promise<SaveFacebookAccountRepo.Result> {
     if (!params.id) {
-      await this.pgUserRepo.save({
+      const pgUser = await this.pgUserRepo.save({
         email: params.email,
         name: params.name,
         facebookId: params.facebookId,
       });
-      return;
+
+      return {
+        id: pgUser.id.toString(),
+      };
     }
 
     await this.pgUserRepo.update(
@@ -40,5 +43,7 @@ export class PgUserAccountRepo implements LoadUserAccountByEmailRepo {
         facebookId: params.facebookId,
       }
     );
+
+    return { id: params.id };
   }
 }
