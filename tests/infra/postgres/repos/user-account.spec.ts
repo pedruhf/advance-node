@@ -72,5 +72,30 @@ describe("PgUserAccountRepo", () => {
 
       expect(account?.id).toBe(1);
     });
+
+    test("Should update account if id exists", async () => {
+      await pgUserRepo.save({
+        email: "any_email",
+        name: "any_name",
+        facebookId: "any_facebook_id",
+      });
+
+      const { sut } = makeSut();
+      await sut.saveWithFacebook({
+        id: "1",
+        email: "new_email",
+        name: "new_name",
+        facebookId: "new_facebook_id",
+      });
+
+      const account = await pgUserRepo.findOne({ id: 1 });
+
+      expect(account).toEqual({
+        id: 1,
+        email: "any_email",
+        name: "new_name",
+        facebookId: "new_facebook_id",
+      });
+    });
   });
 });
