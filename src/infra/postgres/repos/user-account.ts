@@ -6,7 +6,7 @@ import {
 } from "@/data/repos";
 import { PgUser } from "@/infra/postgres/entities";
 
-export class PgUserAccountRepo implements LoadUserAccountByEmailRepo {
+export class PgUserAccountRepo implements LoadUserAccountByEmailRepo, SaveFacebookAccountRepo {
   private readonly pgUserRepo = getRepository(PgUser);
 
   async load(
