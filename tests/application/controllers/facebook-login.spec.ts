@@ -1,22 +1,8 @@
 import { AuthenticationError } from "@/domain/errors";
-import { FacebookAuthentication } from "@/domain/features";
 import { AccessToken } from "@/domain/models";
 import { FacebookLoginController } from "@/application/controllers";
 import { ServerError } from "@/application/errors";
-
-class FacebookAuthenticationSpy implements FacebookAuthentication {
-  callsCount = 0;
-  data?: FacebookAuthentication.Params;
-  result: FacebookAuthentication.Result = new AccessToken("any_token");
-
-  async perform(
-    params: FacebookAuthentication.Params
-  ): Promise<FacebookAuthentication.Result> {
-    this.callsCount++;
-    this.data = params;
-    return this.result;
-  }
-}
+import { FacebookAuthenticationSpy } from "@/tests/infra/mocks";
 
 type SutTypes = {
   sut: FacebookLoginController;
