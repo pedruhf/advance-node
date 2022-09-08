@@ -1,8 +1,8 @@
 import { ServerError, UnauthorizedError } from "@/application/errors";
 
-export type HttpResponse = {
+export type HttpResponse<T = any> = {
   statusCode: number;
-  data: any;
+  data: T;
 };
 
 export enum HttpStatusCode {
@@ -12,12 +12,12 @@ export enum HttpStatusCode {
   serverError = 500,
 }
 
-export const success = (data: any): HttpResponse => ({
+export const success = <T = any> (data: T): HttpResponse<T> => ({
   statusCode: HttpStatusCode.ok,
   data,
 });
 
-export const badRequest = (error: Error): HttpResponse => ({
+export const badRequest = (error: Error): HttpResponse<Error> => ({
   statusCode: HttpStatusCode.badRequest,
   data: error,
 });
@@ -27,7 +27,7 @@ export const unauthorized = (): HttpResponse => ({
   data: new UnauthorizedError(),
 });
 
-export const serverError = (error: Error): HttpResponse => ({
+export const serverError = (error: Error): HttpResponse<Error> => ({
   statusCode: HttpStatusCode.serverError,
   data: new ServerError(error),
 });
