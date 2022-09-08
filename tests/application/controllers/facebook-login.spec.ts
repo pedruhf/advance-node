@@ -1,5 +1,6 @@
 import { AuthenticationError } from "@/domain/errors";
 import { FacebookAuthentication } from "@/domain/features";
+import { AccessToken } from "@/domain/models";
 
 type HttpResponse = { statusCode: number; data: any };
 
@@ -15,7 +16,19 @@ class FacebookLoginController {
         data: new Error("The field token is required"),
       };
     }
-    const result = await this.facebookAuthentication.perform({ token: httpRequest.token });
+
+    const result = await this.facebookAuthentication.perform({
+      token: httpRequest.token,
+    });
+    if (result instanceof AccessToken) {
+      return {
+        statusCode: 200,
+        data: {
+          accessToken: result.value
+        },
+      };
+    }
+
     return {
       statusCode: 401,
       data: result,
@@ -26,7 +39,7 @@ class FacebookLoginController {
 class FacebookAuthenticationSpy implements FacebookAuthentication {
   callsCount = 0;
   data?: FacebookAuthentication.Params;
-  result = new AuthenticationError();
+  result: FacebookAuthentication.Result = new AccessToken("any_token");
 
   async perform(
     params: FacebookAuthentication.Params
@@ -95,12 +108,24 @@ describe("FacebookLoginController", () => {
   test("Should return 401 if authentication fails", async () => {
     const facebookAuthenticationSpy = new FacebookAuthenticationSpy();
     facebookAuthenticationSpy.result = new AuthenticationError();
-    const { sut } = makeSut();
+    const { sut } = makeSut(facebookAuthenticationSpy);
     const httpResponse = await sut.handle({ token: "any_token" });
 
     expect(httpResponse).toEqual({
       statusCode: 401,
       data: new AuthenticationError(),
+    });
+  });
+
+  test("Should return 200 if authentication succeeds", async () => {
+    const { sut } = makeSut();
+    const httpResponse = await sut.handle({ token: "any_token" });
+
+    expect(httpResponse).toEqual({
+      statusCode: 200,
+      data: {
+        accessToken: new AccessToken("any_token").value
+      },
     });
   });
 });
