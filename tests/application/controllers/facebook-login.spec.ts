@@ -1,7 +1,7 @@
 import { AuthenticationError } from "@/domain/errors";
 import { AccessToken } from "@/domain/models";
 import { FacebookLoginController } from "@/application/controllers";
-import { RequiredFieldError, ServerError } from "@/application/errors";
+import { RequiredFieldError, ServerError, UnauthorizedError } from "@/application/errors";
 import { FacebookAuthenticationSpy } from "@/tests/infra/mocks";
 
 type SutTypes = {
@@ -61,13 +61,13 @@ describe("FacebookLoginController", () => {
 
   test("Should return 401 if authentication fails", async () => {
     const facebookAuthenticationSpy = new FacebookAuthenticationSpy();
-    facebookAuthenticationSpy.result = new AuthenticationError();
+    facebookAuthenticationSpy.result = new UnauthorizedError();
     const { sut } = makeSut(facebookAuthenticationSpy);
     const httpResponse = await sut.handle({ token: "any_token" });
 
     expect(httpResponse).toEqual({
       statusCode: 401,
-      data: new AuthenticationError(),
+      data: new UnauthorizedError(),
     });
   });
 
