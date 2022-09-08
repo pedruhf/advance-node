@@ -1,4 +1,3 @@
-import { FacebookAuthenticationUsecase } from "@/data/usecases";
 import { FacebookAuthentication } from "@/domain/features";
 import { AccessToken } from "@/domain/models";
 
@@ -31,10 +30,24 @@ class FacebookAuthenticationSpy implements FacebookAuthentication {
   }
 }
 
+type SutTypes = {
+  sut: FacebookLoginController;
+  facebookAuthenticationSpy: FacebookAuthenticationSpy;
+};
+
+const makeSut = (): SutTypes => {
+  const facebookAuthenticationSpy = new FacebookAuthenticationSpy();
+  const sut = new FacebookLoginController(facebookAuthenticationSpy);
+
+  return {
+    sut,
+    facebookAuthenticationSpy,
+  };
+};
+
 describe("FacebookLoginController", () => {
   test("Should return 400 if token is empty", async () => {
-    const facebookAuthenticationSpy = new FacebookAuthenticationSpy();
-    const sut = new FacebookLoginController(facebookAuthenticationSpy);
+    const { sut } = makeSut();
     const httpResponse = await sut.handle({ token: "" });
 
     expect(httpResponse).toEqual({
@@ -44,8 +57,7 @@ describe("FacebookLoginController", () => {
   });
 
   test("Should return 400 if token is null", async () => {
-    const facebookAuthenticationSpy = new FacebookAuthenticationSpy();
-    const sut = new FacebookLoginController(facebookAuthenticationSpy);
+    const { sut } = makeSut();
     const httpResponse = await sut.handle({ token: null });
 
     expect(httpResponse).toEqual({
@@ -55,8 +67,7 @@ describe("FacebookLoginController", () => {
   });
 
   test("Should return 400 if token is undefined", async () => {
-    const facebookAuthenticationSpy = new FacebookAuthenticationSpy();
-    const sut = new FacebookLoginController(facebookAuthenticationSpy);
+    const { sut } = makeSut();
     const httpResponse = await sut.handle({ token: undefined });
 
     expect(httpResponse).toEqual({
@@ -66,8 +77,7 @@ describe("FacebookLoginController", () => {
   });
 
   test("Should call FacebookAuthentication with correct params", async () => {
-    const facebookAuthenticationSpy = new FacebookAuthenticationSpy();
-    const sut = new FacebookLoginController(facebookAuthenticationSpy);
+    const { sut, facebookAuthenticationSpy } = makeSut();
     await sut.handle({ token: "any_token" });
 
     expect(facebookAuthenticationSpy.data).toEqual({ token: "any_token" });
