@@ -4,7 +4,9 @@ class RequiredStringValidator {
   constructor (private readonly value: string, private readonly fieldName: string) {}
 
   validate(): Error | undefined {
-    return new RequiredFieldError(this.fieldName);
+    if (!this.value) {
+      return new RequiredFieldError(this.fieldName);
+    }
   }
 }
 
@@ -28,5 +30,12 @@ describe("RequiredStringValidator", () => {
     const error = sut.validate();
 
     expect(error).toEqual(new RequiredFieldError("any_field"));
+  });
+
+  test("Should return undefined if value truthy", () => {
+    const sut = new RequiredStringValidator("any_value", "any_field");
+    const error = sut.validate();
+
+    expect(error).toBeUndefined();
   });
 });
