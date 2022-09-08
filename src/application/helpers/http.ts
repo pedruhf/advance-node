@@ -6,10 +6,16 @@ export type HttpResponse = {
 };
 
 export enum HttpStatusCode {
+  ok = 200,
   badRequest = 400,
   unauthorized = 401,
   serverError = 500,
 }
+
+export const success = (data: any): HttpResponse => ({
+  statusCode: HttpStatusCode.ok,
+  data,
+});
 
 export const badRequest = (error: Error): HttpResponse => ({
   statusCode: HttpStatusCode.badRequest,
