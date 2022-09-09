@@ -1,31 +1,11 @@
-interface Validator {
-  validate: () => Error | undefined;
-}
-
-class ValidatorSpy implements Validator {
-  validate(): Error | undefined {
-    return undefined;
-  }
-}
-
-class ValidationComposite implements Validator {
-  constructor(private readonly validators: Validator[]) {}
-
-  validate(): Error | undefined {
-    for (const validator of this.validators) {
-      const error = validator.validate();
-      if (error) {
-        return error;
-      }
-    }
-  }
-}
+import { ValidationComposite } from "@/application/validation";
+import { ValidatorSpy } from "@/tests/application/mocks/validation";
 
 type SutTypes = {
   sut: ValidationComposite;
 };
 
-const makeSut = (validators: ValidatorSpy[]  = []): SutTypes => {
+const makeSut = (validators: ValidatorSpy[] = []): SutTypes => {
   const sut = new ValidationComposite(validators);
 
   return {
