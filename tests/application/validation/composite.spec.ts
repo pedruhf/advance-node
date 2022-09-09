@@ -47,7 +47,7 @@ describe("ValidationComposite", () => {
     expect(error).toBeUndefined();
   });
 
-  test("Should return first error", () => {
+  test("Should return the first error", () => {
     const error1 = new Error("error_1");
     const error2 = new Error("error_2");
 
@@ -61,5 +61,19 @@ describe("ValidationComposite", () => {
     const error = sut.validate();
 
     expect(error).toEqual(error1);
+  });
+
+  test("Should return error", () => {
+    const error2 = new Error("error_2");
+
+    const validator1 = new ValidatorSpy();
+    const validator2 = new ValidatorSpy();
+    jest.spyOn(validator2, "validate").mockReturnValueOnce(error2);
+    const validators = [validator1, validator2];
+
+    const { sut } = makeSut(validators);
+    const error = sut.validate();
+
+    expect(error).toEqual(error2);
   });
 });
