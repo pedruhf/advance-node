@@ -1,17 +1,11 @@
 import { FacebookAuthentication } from "@/domain/features";
 import { AccessToken } from "@/domain/models";
-import {
-  badRequest,
-  HttpResponse,
-  serverError,
-  success,
-  unauthorized,
-} from "@/application/helpers";
-import { RequiredFieldError } from "@/application/errors";
+import { HttpResponse, success, unauthorized } from "@/application/helpers";
 import {
   ValidationBuilder,
-  ValidationComposite,
+  Validator,
 } from "@/application/validation";
+import { Controller } from "@/application/controllers";
 
 type HttpRequest = {
   token: string;
@@ -19,33 +13,25 @@ type HttpRequest = {
 
 type Model = { accessToken: string } | Error;
 
-export class FacebookLoginController {
-  constructor(
-    private readonly facebookAuthentication: FacebookAuthentication
-  ) {}
-
-  async handle(httpRequest: HttpRequest): Promise<HttpResponse<Model>> {
-    try {
-      const error = this.validate(httpRequest);
-      if (error) {
-        return badRequest(new RequiredFieldError("token"));
-      }
-      const accessToken = await this.facebookAuthentication.perform({
-        token: httpRequest.token,
-      });
-      if (accessToken instanceof AccessToken) {
-        return success({
-          accessToken: accessToken.value,
-        });
-      }
-
-      return unauthorized();
-    } catch (error) {
-      return serverError(<Error>error);
-    }
+export class FacebookLoginController extends Controller {
+  constructor(private readonly facebookAuthentication: FacebookAuthentication) {
+    super();
   }
 
-  private validate(httpRequest: HttpRequest): Error | undefined {
+  async perform(httpRequest: HttpRequest): Promise<HttpResponse<Model>> {
+    const accessToken = await this.facebookAuthentication.perform({
+      token: httpRequest.token,
+    });
+    if (accessToken instanceof AccessToken) {
+      return success({
+        accessToken: accessToken.value,
+      });
+    }
+
+    return unauthorized();
+  }
+
+  override buildValidators(httpRequest: HttpRequest): Validator[] {
     const validators = [
       ...ValidationBuilder.of({
         value: httpRequest.token,
@@ -54,7 +40,6 @@ export class FacebookLoginController {
         .required()
         .build(),
     ];
-    const validator = new ValidationComposite(validators);
-    return validator.validate();
+    return validators;
   }
 }

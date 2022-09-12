@@ -1,17 +1,12 @@
 import { AccessToken } from "@/domain/models";
 import { FacebookLoginController } from "@/application/controllers";
 import {
-  RequiredFieldError,
-  ServerError,
   UnauthorizedError,
 } from "@/application/errors";
 import { FacebookAuthenticationSpy } from "@/tests/infra/mocks";
 import {
   RequiredStringValidator,
-  ValidationComposite,
 } from "@/application/validation";
-
-jest.mock("@/application/validation/composite");
 
 type SutTypes = {
   sut: FacebookLoginController;
@@ -32,25 +27,13 @@ const makeSut = (
 describe("FacebookLoginController", () => {
   const token = "any_token";
 
-  it("Should return 400 if validation fails", async () => {
-    const error = new RequiredFieldError("token");
-    const validationCompositeSpy = jest.fn().mockImplementationOnce(() => ({
-      validate: jest.fn().mockReturnValueOnce(error),
-    }));
-    jest
-      .mocked(ValidationComposite)
-      .mockImplementationOnce(validationCompositeSpy);
-
+  it("Should build Validators correctly", async () => {
     const { sut } = makeSut();
-    const httpResponse = await sut.handle({ token });
+    const validators = sut.buildValidators({ token });
 
-    expect(ValidationComposite).toHaveBeenCalledWith([
+    expect(validators).toEqual([
       new RequiredStringValidator("any_token", "token"),
     ]);
-    expect(httpResponse).toEqual({
-      statusCode: 400,
-      data: error,
-    });
   });
 
   test("Should call FacebookAuthentication with correct params", async () => {
@@ -64,6 +47,7 @@ describe("FacebookLoginController", () => {
   test("Should return 401 if authentication fails", async () => {
     const facebookAuthenticationSpy = new FacebookAuthenticationSpy();
     facebookAuthenticationSpy.result = new UnauthorizedError();
+  
     const { sut } = makeSut(facebookAuthenticationSpy);
     const httpResponse = await sut.handle({ token });
 
@@ -82,22 +66,6 @@ describe("FacebookLoginController", () => {
       data: {
         accessToken: new AccessToken("any_token").value,
       },
-    });
-  });
-
-  test("Should return 500 if authentication throws", async () => {
-    const error = new ServerError();
-    const facebookAuthenticationSpy = new FacebookAuthenticationSpy();
-    jest
-      .spyOn(facebookAuthenticationSpy, "perform")
-      .mockRejectedValueOnce(error);
-
-    const { sut } = makeSut(facebookAuthenticationSpy);
-    const httpResponse = await sut.handle({ token });
-
-    expect(httpResponse).toEqual({
-      statusCode: 500,
-      data: error,
     });
   });
 });
