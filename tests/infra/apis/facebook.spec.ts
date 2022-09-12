@@ -74,4 +74,15 @@ describe("FacebookApi", () => {
 
     expect(facebookUser).toEqual(fbModelMock());
   });
+
+  test("Should return undefined if httpGetClient throws", async () => {
+    const { sut, httpGetClientSpy } = makeSut();
+    jest
+      .spyOn(httpGetClientSpy, "get")
+      .mockRejectedValueOnce(new Error("facebook_error"));
+
+    const facebookUser = await sut.loadUser({ token: "any_client_token" });
+
+    expect(facebookUser).toBeUndefined();
+  });
 });
