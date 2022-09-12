@@ -1,6 +1,5 @@
 import { RequiredStringValidator, Validator } from "@/application/validation";
 
-
 export class ValidationBuilder {
   private constructor(
     private readonly value: string,

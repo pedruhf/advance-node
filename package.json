@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "prepare": "husky install",
     "build": "rimraf dist && tsc -p tsconfig-build.json",
     "start": "node dist/main/api",
     "lint": "eslint .",
@@ -12,7 +13,7 @@
     "test:watch": "npm run test -- --watch",
     "test:coverage": "npm run test -- --coverage",
     "test:staged": "npm run test -- --findRelatedTests",
-    "prepare": "husky install"
+    "test:fb-api": "npm run test -- -c ./jest.integration.config.js tests/external/facebook-api.test.ts"
   },
   "repository": {
     "type": "git",
