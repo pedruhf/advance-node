@@ -3,19 +3,24 @@ import { getMockReq, getMockRes } from "@jest-mock/express";
 
 import { Controller } from "@/application/controllers";
 import { ControllerStub } from "@/tests/application/mocks";
+import { HttpStatusCode } from "@/application/helpers";
 
 class ExpressRouter {
   constructor(private readonly controller: Controller) {}
   async adapt(req: Request, res: Response): Promise<void> {
     const httpResponse = await this.controller.perform({ ...req.body });
-    res.status(200).json(httpResponse.data);
+    if (httpResponse.statusCode === HttpStatusCode.ok) {
+      res.status(200).json(httpResponse.data);
+    } else {
+      res.status(400).json({ error: httpResponse.data.message });
+    }
   }
 }
 
 type SutTypes = {
   sut: ExpressRouter;
-  controllerSpy: ControllerStub
-}
+  controllerSpy: ControllerStub;
+};
 
 const makeSut = (): SutTypes => {
   const controllerSpy = new ControllerStub();
@@ -62,6 +67,23 @@ describe("ExpressRouter", () => {
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.json).toHaveBeenCalledWith("any_data");
+    expect(res.json).toHaveBeenCalledTimes(1);
+  });
+
+  test("Should respond with 400 and valid error", async () => {
+    const req = getMockReq({ body: { anyField: "any_value" } });
+    const { res } = getMockRes();
+
+    const { sut, controllerSpy } = makeSut();
+    controllerSpy.result = {
+      statusCode: 400,
+      data: new Error("any_error")
+    };
+    await sut.adapt(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({ error: "any_error" });
     expect(res.json).toHaveBeenCalledTimes(1);
   });
 });
