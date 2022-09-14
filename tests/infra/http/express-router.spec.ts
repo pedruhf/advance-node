@@ -1,21 +1,7 @@
-import { Request, Response } from "express";
 import { getMockReq, getMockRes } from "@jest-mock/express";
 
-import { Controller } from "@/application/controllers";
 import { ControllerStub } from "@/tests/application/mocks";
-import { HttpStatusCode } from "@/application/helpers";
-
-class ExpressRouter {
-  constructor(private readonly controller: Controller) {}
-  async adapt(req: Request, res: Response): Promise<void> {
-    const httpResponse = await this.controller.perform({ ...req.body });
-    if (httpResponse.statusCode === HttpStatusCode.ok) {
-      res.status(200).json(httpResponse.data);
-    } else {
-      res.status(httpResponse.statusCode).json({ error: httpResponse.data.message });
-    }
-  }
-}
+import { ExpressRouter } from "@/infra/http";
 
 type SutTypes = {
   sut: ExpressRouter;
@@ -77,7 +63,7 @@ describe("ExpressRouter", () => {
     const { sut, controllerSpy } = makeSut();
     controllerSpy.result = {
       statusCode: 400,
-      data: new Error("any_error")
+      data: new Error("any_error"),
     };
     await sut.adapt(req, res);
 
@@ -94,7 +80,7 @@ describe("ExpressRouter", () => {
     const { sut, controllerSpy } = makeSut();
     controllerSpy.result = {
       statusCode: 500,
-      data: new Error("any_error")
+      data: new Error("any_error"),
     };
     await sut.adapt(req, res);
 
