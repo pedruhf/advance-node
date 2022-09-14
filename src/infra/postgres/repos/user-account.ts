@@ -1,18 +1,13 @@
 import { getRepository } from "typeorm";
 
-import {
-  LoadUserAccountByEmailRepo,
-  SaveFacebookAccountRepo,
-} from "@/data/repos";
+import { LoadUserAccountByEmailRepo, SaveFacebookAccountRepo } from "@/data/repos";
 import { PgUser } from "@/infra/postgres/entities";
 
 export class PgUserAccountRepo implements LoadUserAccountByEmailRepo, SaveFacebookAccountRepo {
   private readonly pgUserRepo = getRepository(PgUser);
 
-  async load(
-    params: LoadUserAccountByEmailRepo.Params
-  ): Promise<LoadUserAccountByEmailRepo.Result> {
-    const pgUser = await this.pgUserRepo.findOne({ email: params.email });
+  async load({ email }: LoadUserAccountByEmailRepo.Params): Promise<LoadUserAccountByEmailRepo.Result> {
+    const pgUser = await this.pgUserRepo.findOne({ email: email });
     if (!pgUser) return;
 
     return {
@@ -21,29 +16,19 @@ export class PgUserAccountRepo implements LoadUserAccountByEmailRepo, SaveFacebo
     };
   }
 
-  async saveWithFacebook(
-    params: SaveFacebookAccountRepo.Params
-  ): Promise<SaveFacebookAccountRepo.Result> {
-    if (!params.id) {
+  async saveWithFacebook({ id, name, email, facebookId }: SaveFacebookAccountRepo.Params): Promise<SaveFacebookAccountRepo.Result> {
+    if (!id) {
       const pgUser = await this.pgUserRepo.save({
-        email: params.email,
-        name: params.name,
-        facebookId: params.facebookId,
+        email,
+        name,
+        facebookId,
       });
 
-      return {
-        id: pgUser.id.toString(),
-      };
+      return { id: pgUser.id.toString() };
     }
 
-    await this.pgUserRepo.update(
-      { id: parseInt(params.id) },
-      {
-        name: params.name,
-        facebookId: params.facebookId,
-      }
-    );
+    await this.pgUserRepo.update({ id: parseInt(id) }, { name, facebookId });
 
-    return { id: params.id };
+    return { id };
   }
 }
