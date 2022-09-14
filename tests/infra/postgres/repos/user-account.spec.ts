@@ -35,8 +35,6 @@ describe("PgUserAccountRepo", () => {
     await getConnection().close();
   });
 
-  beforeEach(() => {});
-
   describe("load", () => {
     test("Should return an account if email exists", async () => {
       await pgUserRepo.save({
