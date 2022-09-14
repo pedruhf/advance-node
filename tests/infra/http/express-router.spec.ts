@@ -1,16 +1,17 @@
 import { getMockReq, getMockRes } from "@jest-mock/express";
 
 import { ControllerStub } from "@/tests/application/mocks";
-import { ExpressRouter } from "@/infra/http";
+import { adaptExpressRoute } from "@/infra/http";
+import { RequestHandler } from "express";
 
 type SutTypes = {
-  sut: ExpressRouter;
+  sut: RequestHandler;
   controllerSpy: ControllerStub;
 };
 
 const makeSut = (): SutTypes => {
   const controllerSpy = new ControllerStub();
-  const sut = new ExpressRouter(controllerSpy);
+  const sut = adaptExpressRoute(controllerSpy);
 
   return {
     sut,
@@ -21,34 +22,34 @@ const makeSut = (): SutTypes => {
 describe("ExpressRouter", () => {
   test("Should call handle with correct request", async () => {
     const req = getMockReq({ body: { anyField: "any_value" } });
-    const { res } = getMockRes();
+    const { res, next } = getMockRes();
 
     const { sut, controllerSpy } = makeSut();
-    const performSpy = jest.spyOn(controllerSpy, "perform");
-    await sut.adapt(req, res);
+    const handleSpy = jest.spyOn(controllerSpy, "handle");
+    await sut(req, res, next);
 
-    expect(performSpy).toHaveBeenLastCalledWith({ anyField: "any_value" });
-    expect(performSpy).toHaveBeenCalledTimes(1);
+    expect(handleSpy).toHaveBeenLastCalledWith({ anyField: "any_value" });
+    expect(handleSpy).toHaveBeenCalledTimes(1);
   });
 
   test("Should call handle with empty request", async () => {
     const req = getMockReq();
-    const { res } = getMockRes();
+    const { res, next } = getMockRes();
 
     const { sut, controllerSpy } = makeSut();
-    const performSpy = jest.spyOn(controllerSpy, "perform");
-    await sut.adapt(req, res);
+    const handleSpy = jest.spyOn(controllerSpy, "handle");
+    await sut(req, res, next);
 
-    expect(performSpy).toHaveBeenLastCalledWith({});
-    expect(performSpy).toHaveBeenCalledTimes(1);
+    expect(handleSpy).toHaveBeenLastCalledWith({});
+    expect(handleSpy).toHaveBeenCalledTimes(1);
   });
 
   test("Should respond with 200 and valid data", async () => {
     const req = getMockReq({ body: { anyField: "any_value" } });
-    const { res } = getMockRes();
+    const { res, next } = getMockRes();
 
     const { sut } = makeSut();
-    await sut.adapt(req, res);
+    await sut(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.status).toHaveBeenCalledTimes(1);
@@ -58,14 +59,14 @@ describe("ExpressRouter", () => {
 
   test("Should respond with 400 and valid error", async () => {
     const req = getMockReq({ body: { anyField: "any_value" } });
-    const { res } = getMockRes();
+    const { res, next } = getMockRes();
 
     const { sut, controllerSpy } = makeSut();
     controllerSpy.result = {
       statusCode: 400,
       data: new Error("any_error"),
     };
-    await sut.adapt(req, res);
+    await sut(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.status).toHaveBeenCalledTimes(1);
@@ -75,14 +76,14 @@ describe("ExpressRouter", () => {
 
   test("Should respond with 500 and valid error", async () => {
     const req = getMockReq({ body: { anyField: "any_value" } });
-    const { res } = getMockRes();
+    const { res, next } = getMockRes();
 
     const { sut, controllerSpy } = makeSut();
     controllerSpy.result = {
       statusCode: 500,
       data: new Error("any_error"),
     };
-    await sut.adapt(req, res);
+    await sut(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.status).toHaveBeenCalledTimes(1);
