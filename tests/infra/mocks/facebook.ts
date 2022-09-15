@@ -1,5 +1,5 @@
 import { FacebookAuthentication } from "@/domain/features";
-import { AccessToken } from "@/domain/models";
+import { AccessToken } from "@/domain/entities";
 
 export class FacebookAuthenticationSpy implements FacebookAuthentication {
   callsCount = 0;

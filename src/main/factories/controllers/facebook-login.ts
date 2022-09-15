@@ -1,7 +1,7 @@
 import { FacebookLoginController } from "@/application/controllers";
-import { makeFacebookAuthenticationUsecase } from "@/main/factories/usecases";
+import { makeFacebookAuthenticationUseCase } from "@/main/factories/use-cases";
 
 export const makeFacebookLoginController = (): FacebookLoginController => {
-  const facebookAuthentication = makeFacebookAuthenticationUsecase();
+  const facebookAuthentication = makeFacebookAuthenticationUseCase();
   return new FacebookLoginController(facebookAuthentication);
 };

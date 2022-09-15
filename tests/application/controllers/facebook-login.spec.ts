@@ -1,4 +1,4 @@
-import { AccessToken } from "@/domain/models";
+import { AccessToken } from "@/domain/entities";
 import { FacebookLoginController } from "@/application/controllers";
 import {
   UnauthorizedError,

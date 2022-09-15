@@ -1,11 +1,11 @@
-import { FacebookAuthenticationUsecase } from "@/data/usecases";
+import { FacebookAuthenticationUseCase } from "@/data/use-cases";
 import { makeFacebookApi } from "@/main/factories/apis";
 import { makePgUserAccountRepo } from "@/main/factories/repos";
 import { makeJwtTokenGenerator } from "@/main/factories/crypto";
 
-export const makeFacebookAuthenticationUsecase = (): FacebookAuthenticationUsecase => {
+export const makeFacebookAuthenticationUseCase = (): FacebookAuthenticationUseCase => {
   const facebookApi = makeFacebookApi();
   const pgUserAccountRepo = makePgUserAccountRepo();
   const jwtTokenGenerator = makeJwtTokenGenerator();
-  return new FacebookAuthenticationUsecase(facebookApi, pgUserAccountRepo, jwtTokenGenerator);
+  return new FacebookAuthenticationUseCase(facebookApi, pgUserAccountRepo, jwtTokenGenerator);
 };

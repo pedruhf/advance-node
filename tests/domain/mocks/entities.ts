@@ -1,4 +1,4 @@
-import { AccountModel, FacebookModel } from "@/domain/models";
+import { AccountModel, FacebookModel } from "@/domain/entities";
 
 export const fbModelMock = (): FacebookModel => ({
   name: "any_facebook_name",

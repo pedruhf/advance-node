@@ -1,6 +1,6 @@
-import { AccessToken, FacebookAccount } from "@/domain/models";
+import { AccessToken, FacebookAccount } from "@/domain/entities";
 import { AuthenticationError } from "@/domain/errors";
-import { FacebookAuthenticationUsecase } from "@/data/usecases";
+import { FacebookAuthenticationUseCase } from "@/data/use-cases";
 import {
   LoadFacebookUserApiSpy,
   TokenGeneratorSpy,
@@ -8,10 +8,10 @@ import {
 } from "@/tests/data/mocks";
 import { fbModelMock } from "@/tests/domain/mocks";
 
-jest.mock("@/domain/models/facebook-account");
+jest.mock("@/domain/entities/facebook-account");
 
 type SutTypes = {
-  sut: FacebookAuthenticationUsecase;
+  sut: FacebookAuthenticationUseCase;
   loadFacebookUserApiSpy: LoadFacebookUserApiSpy;
   userAccountSpy: UserAccountSpy;
   tokenGeneratorSpy: TokenGeneratorSpy;
@@ -28,7 +28,7 @@ const makeSut = ({
   userAccountSpy = new UserAccountSpy(),
   tokenGeneratorSpy = new TokenGeneratorSpy(),
 }: SutParams = {}): SutTypes => {
-  const sut = new FacebookAuthenticationUsecase(
+  const sut = new FacebookAuthenticationUseCase(
     loadFacebookUserApiSpy,
     userAccountSpy,
     tokenGeneratorSpy
@@ -42,7 +42,7 @@ const makeSut = ({
   };
 };
 
-describe("FacebookAuthentication Usecase", () => {
+describe("FacebookAuthentication UseCase", () => {
   const token = "any_token";
   const facebookUserData = fbModelMock();
 
