@@ -55,14 +55,14 @@ describe("FacebookAuthentication UseCase", () => {
     expect(loadFacebookUserApiSpy.callsCount).toBe(1);
   });
 
-  test("Should return AuthenticationError if LoadFacebookUserApi returns undefined", async () => {
+  test("Should throw AuthenticationError if LoadFacebookUserApi returns undefined", async () => {
     const loadFacebookUserApiSpy = new LoadFacebookUserApiSpy();
     loadFacebookUserApiSpy.result = undefined;
 
     const { sut } = makeSut({ loadFacebookUserApiSpy });
-    const authResult = await sut.perform({ token });
+    const authPromise = sut.perform({ token });
 
-    expect(authResult).toEqual(new AuthenticationError());
+    await expect(authPromise).rejects.toThrow(new AuthenticationError());
   });
 
   test("Should call LoadUserAccountByEmailRepo when LoadFacebookUserApi returns data", async () => {
@@ -99,6 +99,13 @@ describe("FacebookAuthentication UseCase", () => {
       expirationInMs: AccessToken.expirationInMs,
     });
     expect(tokenGeneratorSpy.callsCount).toBe(1);
+  });
+
+  test("Should call TokenGenerator with correct params", async () => {
+    const { sut } = makeSut();
+    const authResult = await sut.perform({ token });
+
+    expect(authResult).toEqual({ accessToken: "any_generated_token" });
   });
 
   test("Should rethrow if LoadFacebookUserApi throws", async () => {

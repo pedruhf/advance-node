@@ -1,7 +1,7 @@
 import { getMockReq, getMockRes } from "@jest-mock/express";
 
 import { ControllerStub } from "@/tests/application/mocks";
-import { adaptExpressRoute } from "@/infra/http";
+import { adaptExpressRoute } from "@/main/adapters";
 import { RequestHandler } from "express";
 
 type SutTypes = {

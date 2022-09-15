@@ -1,7 +1,3 @@
-export class AccessToken {
-  constructor(public readonly value: string) {}
-
-  static get expirationInMs(): number {
-    return 30 * 60 * 1000; // 30 minutes;
-  }
-}
+export const AccessToken = {
+  expirationInMs: 30 * 60 * 1000, // 30 minutes;
+};

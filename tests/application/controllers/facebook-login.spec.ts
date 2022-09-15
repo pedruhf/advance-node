@@ -1,21 +1,16 @@
-import { AccessToken } from "@/domain/entities";
 import { FacebookLoginController } from "@/application/controllers";
-import {
-  UnauthorizedError,
-} from "@/application/errors";
+import { UnauthorizedError } from "@/application/errors";
 import { FacebookAuthenticationSpy } from "@/tests/infra/mocks";
-import {
-  RequiredStringValidator,
-} from "@/application/validation";
+import { RequiredStringValidator } from "@/application/validation";
+import { AuthenticationError } from "@/domain/errors";
 
 type SutTypes = {
   sut: FacebookLoginController;
   facebookAuthenticationSpy: FacebookAuthenticationSpy;
 };
 
-const makeSut = (
-  facebookAuthenticationSpy = new FacebookAuthenticationSpy()
-): SutTypes => {
+const makeSut = (): SutTypes => {
+  const facebookAuthenticationSpy = new FacebookAuthenticationSpy();
   const sut = new FacebookLoginController(facebookAuthenticationSpy);
 
   return {
@@ -31,9 +26,7 @@ describe("FacebookLoginController", () => {
     const { sut } = makeSut();
     const validators = sut.buildValidators({ token });
 
-    expect(validators).toEqual([
-      new RequiredStringValidator("any_token", "token"),
-    ]);
+    expect(validators).toEqual([new RequiredStringValidator("any_token", "token")]);
   });
 
   test("Should call FacebookAuthentication with correct params", async () => {
@@ -45,10 +38,9 @@ describe("FacebookLoginController", () => {
   });
 
   test("Should return 401 if authentication fails", async () => {
-    const facebookAuthenticationSpy = new FacebookAuthenticationSpy();
-    facebookAuthenticationSpy.result = new UnauthorizedError();
-  
-    const { sut } = makeSut(facebookAuthenticationSpy);
+    const { sut, facebookAuthenticationSpy } = makeSut();
+    jest.spyOn(facebookAuthenticationSpy, "perform").mockRejectedValueOnce(new AuthenticationError());
+
     const httpResponse = await sut.handle({ token });
 
     expect(httpResponse).toEqual({
@@ -64,7 +56,7 @@ describe("FacebookLoginController", () => {
     expect(httpResponse).toEqual({
       statusCode: 200,
       data: {
-        accessToken: new AccessToken("any_token").value,
+        accessToken: "any_token",
       },
     });
   });

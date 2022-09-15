@@ -2,24 +2,19 @@ import { AccessToken, FacebookAccount } from "@/domain/entities";
 import { AuthenticationError } from "@/domain/errors";
 import { FacebookAuthentication } from "@/domain/features";
 import { LoadFacebookUserApi } from "@/data/contracts/apis/facebook";
-import {
-  SaveFacebookAccountRepo,
-  LoadUserAccountByEmailRepo,
-} from "@/data/repos";
+import { SaveFacebookAccountRepo, LoadUserAccountByEmailRepo } from "@/data/repos";
 import { TokenGenerator } from "@/data/contracts/crypto";
 
 export class FacebookAuthenticationUseCase implements FacebookAuthentication {
   constructor(
     private readonly loadFacebookUserApi: LoadFacebookUserApi,
-    private readonly userAccount: LoadUserAccountByEmailRepo & SaveFacebookAccountRepo, 
+    private readonly userAccount: LoadUserAccountByEmailRepo & SaveFacebookAccountRepo,
     private readonly tokenGenerator: TokenGenerator
   ) {}
-  async perform(
-    params: FacebookAuthentication.Params
-  ): Promise<FacebookAuthentication.Result> {
+  async perform(params: FacebookAuthentication.Params): Promise<FacebookAuthentication.Result> {
     const fbData = await this.loadFacebookUserApi.loadUser(params);
     if (!fbData) {
-      return new AuthenticationError();
+      throw new AuthenticationError();
     }
 
     const accountData = await this.userAccount.load({ email: fbData?.email });
@@ -30,6 +25,6 @@ export class FacebookAuthenticationUseCase implements FacebookAuthentication {
       expirationInMs: AccessToken.expirationInMs,
     });
 
-    return new AccessToken(token);
+    return { accessToken: token };
   }
 }
