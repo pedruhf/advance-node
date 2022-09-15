@@ -3,7 +3,9 @@ import { RequestHandler } from "express";
 import { Controller } from "@/application/controllers";
 import { HttpStatusCode } from "@/application/helpers";
 
-export const adaptExpressRoute = (controller: Controller): RequestHandler => {
+type Adapter = (controller: Controller) => RequestHandler;
+
+export const adaptExpressRoute: Adapter = (controller) => {
   return async (req, res) => {
     const { statusCode, data } = await controller.handle({ ...req.body });
     const json = statusCode === HttpStatusCode.ok ? data : { error: data.message };
