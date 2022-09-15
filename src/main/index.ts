@@ -4,9 +4,8 @@ import { createConnection } from "typeorm";
 
 import { app } from "./config/app";
 import { env } from "./config/env";
-import { config } from "@/infra/postgres/helpers";
 
-createConnection(config)
+createConnection()
   .then(() => {
     app.listen(env.port, () => console.log(`Server is running at http://localhost:${env.port}`));
   })
