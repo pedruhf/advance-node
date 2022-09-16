@@ -1,33 +1,5 @@
-class Authorize {
-  constructor(private readonly token: string, private readonly tokenValidator: TokenValidator) {}
-
-  async perform(): Promise<string> {
-    const userId = await this.tokenValidator.validate({ token: this.token });
-    return userId;
-  }
-}
-
-export interface TokenValidator {
-  validate: (params: TokenValidator.Params) => Promise<TokenValidator.Result>;
-}
-
-export namespace TokenValidator {
-  export type Params = { token: string };
-  export type Result = string;
-}
-
-class TokenValidatorSpy implements TokenValidator {
-  public callsCount = 0;
-  public input?: TokenValidator.Params;
-  public output: TokenValidator.Result = "any_id";
-
-  async validate(params: TokenValidator.Params): Promise<TokenValidator.Result> {
-    this.callsCount++;
-    this.input = params;
-
-    return this.output;
-  }
-}
+import { Authorize } from "@/data/use-cases";
+import { TokenValidatorSpy } from "@/tests/data/mocks";
 
 type SutTypes = {
   sut: Authorize;
