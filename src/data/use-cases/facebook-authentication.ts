@@ -19,7 +19,6 @@ export class FacebookAuthenticationUseCase implements FacebookAuthentication {
     if (!fbData) {
       throw new AuthenticationError();
     }
-
     const accountData = await this.userAccount.load({ email: fbData?.email });
     const facebookAccount = new FacebookAccount(fbData, accountData);
     const { id } = await this.userAccount.saveWithFacebook(facebookAccount);
@@ -27,7 +26,6 @@ export class FacebookAuthenticationUseCase implements FacebookAuthentication {
       key: id,
       expirationInMs: AccessToken.expirationInMs,
     });
-
     return { accessToken: token };
   }
 }
