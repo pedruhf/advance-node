@@ -1,15 +1,15 @@
-import { Authorize } from "@/data/use-cases";
+import { AuthorizeUseCase } from "@/data/use-cases";
 import { TokenValidatorSpy } from "@/tests/data/mocks";
 
 type SutTypes = {
-  sut: Authorize;
+  sut: AuthorizeUseCase;
   tokenValidatorSpy: TokenValidatorSpy;
 };
 
 const token = "any_token";
 const makeSut = (): SutTypes => {
   const tokenValidatorSpy = new TokenValidatorSpy();
-  const sut = new Authorize(token, tokenValidatorSpy);
+  const sut = new AuthorizeUseCase(token, tokenValidatorSpy);
 
   return {
     sut,
