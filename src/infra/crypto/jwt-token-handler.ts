@@ -10,11 +10,11 @@ export class JwtTokenHandler implements TokenGenerator {
     const token = jwt.sign({ key }, this.secretKey, {
       expiresIn: expirationInSeconds,
     });
-
     return token;
   }
 
-  async validateToken({ token }: TokenValidator.Params): Promise<void> {
-    jwt.verify(token, this.secretKey);
+  async validateToken({ token }: TokenValidator.Params): Promise<TokenValidator.Result> {
+    const key = jwt.verify(token, this.secretKey) as string;
+    return key;
   }
 }

@@ -60,14 +60,21 @@ describe("JwtTokenHandler", () => {
     const token = "any_token";
     const secret = "any_secret";
     const key = "any_key";
-    const expirationInMs = 1000;
 
-    test("Should call sign with correct params", async () => {
+    test("Should call verify with correct params", async () => {
       const { sut } = makeSut();
       await sut.validateToken({ token });
 
       expect(fakeJwt.verify).toHaveBeenCalledWith(token, secret);
       expect(fakeJwt.verify).toHaveBeenCalledTimes(1);
+    });
+
+    test("Should return the key used to generate token", async () => {
+      const { sut } = makeSut();
+      jest.spyOn(fakeJwt, "verify").mockImplementationOnce(() => key);
+      const generatedKey = await sut.validateToken({ token });
+
+      expect(generatedKey).toBe(key);
     });
   });
 });
