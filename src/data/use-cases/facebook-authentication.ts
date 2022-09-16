@@ -22,7 +22,7 @@ export class FacebookAuthenticationUseCase implements FacebookAuthentication {
     const accountData = await this.userAccount.load({ email: fbData?.email });
     const facebookAccount = new FacebookAccount(fbData, accountData);
     const { id } = await this.userAccount.saveWithFacebook(facebookAccount);
-    const token = await this.tokenGenerator.generate({
+    const token = await this.tokenGenerator.generateToken({
       key: id,
       expirationInMs: AccessToken.expirationInMs,
     });

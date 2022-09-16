@@ -147,7 +147,7 @@ describe("FacebookAuthentication UseCase", () => {
   test("Should rethrow if TokenGenerator throws", async () => {
     const tokenGeneratorSpy = new TokenGeneratorSpy();
     jest
-      .spyOn(tokenGeneratorSpy, "generate")
+      .spyOn(tokenGeneratorSpy, "generateToken")
       .mockRejectedValueOnce(new Error("token_error"));
 
     const { sut } = makeSut({ tokenGeneratorSpy });

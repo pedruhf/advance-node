@@ -5,7 +5,7 @@ export class TokenGeneratorSpy implements TokenGenerator {
   data?: TokenGenerator.Params;
   result = "any_generated_token";
 
-  async generate(
+  async generateToken(
     params: TokenGenerator.Params
   ): Promise<TokenGenerator.Result> {
     this.callsCount++;
