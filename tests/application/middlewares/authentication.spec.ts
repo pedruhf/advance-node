@@ -1,35 +1,7 @@
 import { ForbiddenError } from "@/application/errors";
-import { forbidden, HttpResponse, HttpStatusCode, success } from "@/application/helpers";
-import { RequiredStringValidator } from "@/application/validation";
-import { Authorize } from "@/data/contracts/middlewares";
+import { HttpStatusCode } from "@/application/helpers";
+import { AuthenticationMiddleware } from "@/application/middlewares";
 import { AuthorizeSpy } from "@/tests/data/mocks/authorize";
-
-type HttpRequest = {
-  authorization: string;
-};
-
-type Model = { userId: string } | Error;
-
-class AuthenticationMiddleware {
-  constructor(private readonly authorize: Authorize) {}
-
-  async handle({ authorization }: HttpRequest): Promise<HttpResponse<Model>> {
-    if (!this.validate({ authorization })) {
-      return forbidden();
-    }
-    try {
-      const userId = await this.authorize.perform({ token: authorization });
-      return success({ userId });
-    } catch {
-      return forbidden();
-    }
-  }
-
-  private validate ({ authorization }: HttpRequest): boolean {
-    const error = new RequiredStringValidator(authorization, "authorization").validate();
-    return error ? false : true;
-  }
-}
 
 type SutTypes = {
   sut: AuthenticationMiddleware;
