@@ -5,13 +5,16 @@ import { LoadFacebookUserApi } from "@/data/contracts/apis/facebook";
 import { SaveFacebookAccountRepo, LoadUserAccountByEmailRepo } from "@/data/repos";
 import { TokenGenerator } from "@/data/contracts/crypto";
 
+type PerformInput = FacebookAuthentication.Params;
+type PerformOutput = FacebookAuthentication.Result;
+
 export class FacebookAuthenticationUseCase implements FacebookAuthentication {
   constructor(
     private readonly loadFacebookUserApi: LoadFacebookUserApi,
     private readonly userAccount: LoadUserAccountByEmailRepo & SaveFacebookAccountRepo,
     private readonly tokenGenerator: TokenGenerator
   ) {}
-  async perform(params: FacebookAuthentication.Params): Promise<FacebookAuthentication.Result> {
+  async perform(params: PerformInput): Promise<PerformOutput> {
     const fbData = await this.loadFacebookUserApi.loadUser(params);
     if (!fbData) {
       throw new AuthenticationError();
