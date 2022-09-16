@@ -76,5 +76,16 @@ describe("JwtTokenHandler", () => {
 
       expect(generatedKey).toBe(key);
     });
+
+    test("Should rethrow if verify throws", async () => {
+      const { sut } = makeSut();
+      jest.spyOn(fakeJwt, "verify").mockImplementationOnce(() => {
+        throw new Error("verify_error");
+      });
+
+      const tokenPromise = sut.validateToken({ token });
+
+      await expect(tokenPromise).rejects.toThrow(new Error("verify_error"));
+    });
   });
 });
