@@ -83,9 +83,9 @@ describe("JwtTokenHandler", () => {
         throw new Error("verify_error");
       });
 
-      const tokenPromise = sut.validateToken({ token });
+      const keyPromise = sut.validateToken({ token });
 
-      await expect(tokenPromise).rejects.toThrow(new Error("verify_error"));
+      await expect(keyPromise).rejects.toThrow(new Error("verify_error"));
     });
   });
 });
