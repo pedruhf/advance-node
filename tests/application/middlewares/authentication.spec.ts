@@ -17,7 +17,11 @@ class AuthenticationMiddleware {
       return forbidden();
     }
 
-    await this.authorize.perform({ token: authorization });
+    try {
+      await this.authorize.perform({ token: authorization });
+    } catch {
+      return forbidden();
+    }
   }
 }
 
@@ -74,5 +78,16 @@ describe("Authentication Middleware", () => {
 
     expect(authorizeSpy.input).toEqual({ token: authorization });
     expect(authorizeSpy.callsCount).toBe(1);
+  });
+
+  test("Should return 403 if authorize throws", async () => {
+    const { sut, authorizeSpy } = makeSut();
+    jest.spyOn(authorizeSpy, "perform").mockRejectedValueOnce(new Error("any_error"));
+    const httpResponse = await sut.handle({ authorization });
+
+    expect(httpResponse).toEqual({
+      statusCode: HttpStatusCode.forbidden,
+      data: new ForbiddenError(),
+    });
   });
 });
