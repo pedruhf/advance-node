@@ -1,5 +1,5 @@
 import { ForbiddenError } from "@/application/errors";
-import { forbidden, HttpResponse, HttpStatusCode } from "@/application/helpers";
+import { forbidden, HttpResponse, HttpStatusCode, success } from "@/application/helpers";
 import { RequiredStringValidator } from "@/application/validation";
 import { Authorize } from "@/data/contracts/middlewares";
 import { AuthorizeSpy } from "@/tests/data/mocks/authorize";
@@ -8,17 +8,20 @@ type HttpRequest = {
   authorization: string;
 };
 
+type Model = { userId: string } | Error;
+
 class AuthenticationMiddleware {
   constructor(private readonly authorize: Authorize) {}
 
-  async handle({ authorization }: HttpRequest): Promise<HttpResponse<Error> | undefined> {
+  async handle({ authorization }: HttpRequest): Promise<HttpResponse<Model>> {
     const error = new RequiredStringValidator(authorization, "authorization").validate();
     if (error) {
       return forbidden();
     }
 
     try {
-      await this.authorize.perform({ token: authorization });
+      const userId = await this.authorize.perform({ token: authorization });
+      return success({ userId });
     } catch {
       return forbidden();
     }
@@ -88,6 +91,16 @@ describe("Authentication Middleware", () => {
     expect(httpResponse).toEqual({
       statusCode: HttpStatusCode.forbidden,
       data: new ForbiddenError(),
+    });
+  });
+
+  test("Should return 200 if userId on success", async () => {
+    const { sut } = makeSut();
+    const httpResponse = await sut.handle({ authorization });
+
+    expect(httpResponse).toEqual({
+      statusCode: HttpStatusCode.ok,
+      data: { userId: "any_user_id" },
     });
   });
 });
