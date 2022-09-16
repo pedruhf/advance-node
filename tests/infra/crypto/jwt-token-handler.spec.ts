@@ -23,6 +23,7 @@ describe("JwtTokenHandler", () => {
   });
 
   describe("generateToken", () => {
+    const token = "any_token";
     const key = "any_key";
     const expirationInMs = 1000;
 
@@ -31,15 +32,16 @@ describe("JwtTokenHandler", () => {
       await sut.generateToken({ key, expirationInMs });
 
       expect(fakeJwt.sign).toHaveBeenCalledWith({ key }, "any_secret", { expiresIn: 1 });
+      expect(fakeJwt.sign).toHaveBeenCalledTimes(1);
     });
 
     test("Should return a token", async () => {
       const { sut } = makeSut();
-      jest.spyOn(fakeJwt, "sign").mockImplementationOnce(() => "any_token");
+      jest.spyOn(fakeJwt, "sign").mockImplementationOnce(() => token);
 
-      const token = await sut.generateToken({ key, expirationInMs });
+      const generatedToken = await sut.generateToken({ key, expirationInMs });
 
-      expect(token).toBe("any_token");
+      expect(generatedToken).toBe(token);
     });
 
     test("Should rethrow if sign throws", async () => {
@@ -51,6 +53,21 @@ describe("JwtTokenHandler", () => {
       const tokenPromise = sut.generateToken({ key, expirationInMs });
 
       await expect(tokenPromise).rejects.toThrow(new Error("sign_error"));
+    });
+  });
+
+  describe("validateToken", () => {
+    const token = "any_token";
+    const secret = "any_secret";
+    const key = "any_key";
+    const expirationInMs = 1000;
+
+    test("Should call sign with correct params", async () => {
+      const { sut } = makeSut();
+      await sut.validateToken({ token });
+
+      expect(fakeJwt.verify).toHaveBeenCalledWith(token, secret);
+      expect(fakeJwt.verify).toHaveBeenCalledTimes(1);
     });
   });
 });
