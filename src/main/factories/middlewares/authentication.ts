@@ -1,8 +1,8 @@
 import { AuthenticationMiddleware } from "@/application/middlewares";
-import { AuthorizeUseCase } from "@/data/use-cases";
 import { makeJwtTokenHandler } from "../crypto";
 
 export const makeAuthenticationMiddleware = (): AuthenticationMiddleware => {
-  const authorize = new AuthorizeUseCase(makeJwtTokenHandler());
+  const jwt = makeJwtTokenHandler();
+  const authorize = jwt.validateToken.bind(jwt);
   return new AuthenticationMiddleware(authorize);
 };

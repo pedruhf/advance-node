@@ -1,15 +1,14 @@
 import { ForbiddenError } from "@/application/errors";
 import { HttpStatusCode } from "@/application/helpers";
 import { AuthenticationMiddleware } from "@/application/middlewares";
-import { AuthorizeSpy } from "@/tests/data/mocks/authorize";
 
 type SutTypes = {
   sut: AuthenticationMiddleware;
-  authorizeSpy: AuthorizeSpy;
+  authorizeSpy: jest.Mock;
 };
 
 const makeSut = (): SutTypes => {
-  const authorizeSpy = new AuthorizeSpy();
+  const authorizeSpy = jest.fn();
   const sut = new AuthenticationMiddleware(authorizeSpy);
   return {
     sut,
@@ -54,13 +53,13 @@ describe("Authentication Middleware", () => {
     const { sut, authorizeSpy } = makeSut();
     await sut.handle({ authorization });
 
-    expect(authorizeSpy.input).toEqual({ token: authorization });
-    expect(authorizeSpy.callsCount).toBe(1);
+    expect(authorizeSpy).toHaveBeenCalledWith({ token: authorization });
+    expect(authorizeSpy).toHaveBeenCalledTimes(1);
   });
 
   test("Should return 403 if authorize throws", async () => {
     const { sut, authorizeSpy } = makeSut();
-    jest.spyOn(authorizeSpy, "perform").mockRejectedValueOnce(new Error("any_error"));
+    authorizeSpy.mockRejectedValueOnce(new Error("any_error"));
     const httpResponse = await sut.handle({ authorization });
 
     expect(httpResponse).toEqual({
@@ -70,7 +69,8 @@ describe("Authentication Middleware", () => {
   });
 
   test("Should return 200 if userId on success", async () => {
-    const { sut } = makeSut();
+    const { sut, authorizeSpy } = makeSut();
+    authorizeSpy.mockResolvedValueOnce("any_user_id");
     const httpResponse = await sut.handle({ authorization });
 
     expect(httpResponse).toEqual({
