@@ -5,7 +5,7 @@ export class TokenValidatorSpy implements TokenValidator {
   public input?: TokenValidator.Params;
   public output: TokenValidator.Result = "any_id";
 
-  async validate(params: TokenValidator.Params): Promise<TokenValidator.Result> {
+  async validateToken(params: TokenValidator.Params): Promise<TokenValidator.Result> {
     this.callsCount++;
     this.input = params;
 

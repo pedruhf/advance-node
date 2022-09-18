@@ -9,7 +9,7 @@ type SutTypes = {
 const token = "any_token";
 const makeSut = (): SutTypes => {
   const tokenValidatorSpy = new TokenValidatorSpy();
-  const sut = new AuthorizeUseCase(token, tokenValidatorSpy);
+  const sut = new AuthorizeUseCase(tokenValidatorSpy);
 
   return {
     sut,
@@ -20,14 +20,14 @@ const makeSut = (): SutTypes => {
 describe("Authorize UseCase", () => {
   test("Should call TokenValidator with correct params", async () => {
     const { sut, tokenValidatorSpy } = makeSut();
-    await sut.perform();
+    await sut.perform({ token });
 
     expect(tokenValidatorSpy.input).toEqual({ token });
   });
 
   test("Should return the correct accessToken", async () => {
     const { sut } = makeSut();
-    const userId = await sut.perform();
+    const userId = await sut.perform({ token });
 
     expect(userId).toBe("any_id");
   });
