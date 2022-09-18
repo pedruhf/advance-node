@@ -11,7 +11,8 @@ type Adapter = (middleware: Middleware) => RequestHandler;
 
 const adaptExpressMiddleware: Adapter = (middleware) => {
   return async (req, res, next) => {
-    await middleware.handle({ ...req.headers });
+    const { statusCode, data } = await middleware.handle({ ...req.headers });
+    res.status(statusCode).json(data);
   };
 };
 
@@ -30,6 +31,10 @@ describe("Express Middleware", () => {
   });
 
   beforeEach(() => {
+    middleware.handle.mockResolvedValueOnce({
+      statusCode: 500,
+      data: { error: "any_error" },
+    });
     sut = adaptExpressMiddleware(middleware);
   });
 
@@ -46,5 +51,14 @@ describe("Express Middleware", () => {
 
     expect(middleware.handle).toHaveBeenCalledWith({});
     expect(middleware.handle).toHaveBeenCalledTimes(1);
+  });
+
+  test("Should responde with correct statusCode and error", async () => {
+    await sut(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({ error: "any_error" });
+    expect(res.json).toHaveBeenCalledTimes(1);
   });
 });
