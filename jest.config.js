@@ -16,4 +16,5 @@ module.exports = {
     "<rootDir>/src/main",
     "index.ts",
   ],
+  clearMocks: true,
 };
