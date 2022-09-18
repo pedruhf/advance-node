@@ -1,4 +1,4 @@
-import { HttpResponse } from "@/application/helpers";
+import { HttpResponse, HttpStatusCode } from "@/application/helpers";
 import { getMockReq, getMockRes } from "@jest-mock/express";
 import { mock, MockProxy } from "jest-mock-extended";
 import { NextFunction, Request, RequestHandler, Response } from "express";
@@ -12,6 +12,11 @@ type Adapter = (middleware: Middleware) => RequestHandler;
 const adaptExpressMiddleware: Adapter = (middleware) => {
   return async (req, res, next) => {
     const { statusCode, data } = await middleware.handle({ ...req.headers });
+    if (statusCode === HttpStatusCode.ok) {
+      const entries = Object.entries(data).filter((entry) => entry[1]);
+      req.locals = { ...req.locals, ...Object.fromEntries(entries) };
+      next();
+    }
     res.status(statusCode).json(data);
   };
 };
@@ -28,13 +33,18 @@ describe("Express Middleware", () => {
     res = getMockRes().res;
     next = getMockRes().next;
     middleware = mock<Middleware>();
+    middleware.handle.mockResolvedValue({
+      statusCode: HttpStatusCode.ok,
+      data: {
+        validProp: "any_data",
+        emptyProp: "",
+        nullProp: null,
+        undefinedProp: undefined,
+      },
+    });
   });
 
   beforeEach(() => {
-    middleware.handle.mockResolvedValueOnce({
-      statusCode: 500,
-      data: { error: "any_error" },
-    });
     sut = adaptExpressMiddleware(middleware);
   });
 
@@ -53,12 +63,24 @@ describe("Express Middleware", () => {
     expect(middleware.handle).toHaveBeenCalledTimes(1);
   });
 
-  test("Should responde with correct statusCode and error", async () => {
+  test("Should respond with correct statusCode and error", async () => {
+    middleware.handle.mockResolvedValueOnce({
+      statusCode: HttpStatusCode.serverError,
+      data: { error: "any_error" },
+    });
     await sut(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.json).toHaveBeenCalledWith({ error: "any_error" });
     expect(res.json).toHaveBeenCalledTimes(1);
+  });
+
+  test("Should add valid data to req.locals", async () => {
+    await sut(req, res, next);
+
+    expect(req.locals).toEqual({ validProp: "any_data" });
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(next).toHaveBeenCalledTimes(1);
   });
 });
