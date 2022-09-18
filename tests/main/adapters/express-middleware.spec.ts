@@ -65,7 +65,6 @@ describe("Express Middleware", () => {
     await sut(req, res, next);
 
     expect(req.locals).toEqual({ validProp: "any_data" });
-    expect(res.status).toHaveBeenCalledTimes(1);
     expect(next).toHaveBeenCalledTimes(1);
   });
 });

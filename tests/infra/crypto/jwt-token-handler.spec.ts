@@ -71,7 +71,7 @@ describe("JwtTokenHandler", () => {
 
     test("Should return the key used to generate token", async () => {
       const { sut } = makeSut();
-      jest.spyOn(fakeJwt, "verify").mockImplementationOnce(() => key);
+      jest.spyOn(fakeJwt, "verify").mockImplementationOnce(() => ({ key }));
       const generatedKey = await sut.validateToken({ token });
 
       expect(generatedKey).toBe(key);
