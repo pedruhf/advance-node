@@ -1,5 +1,5 @@
 export interface TokenValidator {
-  validate: (params: TokenValidator.Params) => Promise<TokenValidator.Result>;
+  validateToken: (params: TokenValidator.Params) => Promise<TokenValidator.Result>;
 }
 
 export namespace TokenValidator {
