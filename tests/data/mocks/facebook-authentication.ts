@@ -1,14 +1,14 @@
-import { LoadFacebookUserApi } from "@/data/contracts/apis";
+import { LoadFacebookUser } from "@/data/contracts/gateways";
 import { fbModelMock } from "../../domain/mocks";
 
-export class LoadFacebookUserApiSpy implements LoadFacebookUserApi {
+export class LoadFacebookUserApiSpy implements LoadFacebookUser {
   token?: string;
   callsCount = 0;
-  result?: LoadFacebookUserApi.Result = fbModelMock();
+  result?: LoadFacebookUser.Result = fbModelMock();
 
   async loadUser(
-    params: LoadFacebookUserApi.Params
-  ): Promise<LoadFacebookUserApi.Result> {
+    params: LoadFacebookUser.Params
+  ): Promise<LoadFacebookUser.Result> {
     this.token = params.token;
     this.callsCount++;
     return this.result;

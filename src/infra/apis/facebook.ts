@@ -1,4 +1,4 @@
-import { LoadFacebookUserApi } from "@/data/contracts/apis";
+import { LoadFacebookUser } from "@/data/contracts/gateways";
 import { HttpGetClient } from "@/infra/http";
 
 type AppToken = {
@@ -17,11 +17,11 @@ type UserInfo = {
   email: string;
 };
 
-export class FacebookApi implements LoadFacebookUserApi {
+export class FacebookApi implements LoadFacebookUser {
   private readonly baseUrl = "https://graph.facebook.com";
   constructor(private readonly httpGetClient: HttpGetClient, private readonly clientId: string, private readonly clientSecret: string) {}
 
-  async loadUser({ token }: LoadFacebookUserApi.Params): Promise<LoadFacebookUserApi.Result> {
+  async loadUser({ token }: LoadFacebookUser.Params): Promise<LoadFacebookUser.Result> {
     try {
       const { id, email, name } = await this.getUserInfo(token);
 

@@ -46,7 +46,7 @@ describe("FacebookAuthentication UseCase", () => {
   const token = "any_token";
   const facebookUserData = fbModelMock();
 
-  test("Should call LoadFacebookUserApi with correct params", async () => {
+  test("Should call LoadFacebookUser with correct params", async () => {
     const { sut, loadFacebookUserApiSpy } = makeSut();
 
     await sut.perform({ token });
@@ -55,7 +55,7 @@ describe("FacebookAuthentication UseCase", () => {
     expect(loadFacebookUserApiSpy.callsCount).toBe(1);
   });
 
-  test("Should throw AuthenticationError if LoadFacebookUserApi returns undefined", async () => {
+  test("Should throw AuthenticationError if LoadFacebookUser returns undefined", async () => {
     const loadFacebookUserApiSpy = new LoadFacebookUserApiSpy();
     loadFacebookUserApiSpy.result = undefined;
 
@@ -65,7 +65,7 @@ describe("FacebookAuthentication UseCase", () => {
     await expect(authPromise).rejects.toThrow(new AuthenticationError());
   });
 
-  test("Should call LoadUserAccountByEmailRepo when LoadFacebookUserApi returns data", async () => {
+  test("Should call LoadUserAccountByEmailRepo when LoadFacebookUser returns data", async () => {
     const { sut, userAccountSpy } = makeSut();
 
     await sut.perform({ token });
@@ -74,7 +74,7 @@ describe("FacebookAuthentication UseCase", () => {
     expect(userAccountSpy.loadCallsCount).toBe(1);
   });
 
-  test("Should call SaveFacebookAccountRepo with facebookAccount when LoadFacebookUserApi returns undefined", async () => {
+  test("Should call SaveFacebookAccountRepo with facebookAccount when LoadFacebookUser returns undefined", async () => {
     const facebookAccountStub = jest.fn().mockImplementation(() => ({
       anyField: "any_value",
     }));
@@ -108,7 +108,7 @@ describe("FacebookAuthentication UseCase", () => {
     expect(authResult).toEqual({ accessToken: "any_generated_token" });
   });
 
-  test("Should rethrow if LoadFacebookUserApi throws", async () => {
+  test("Should rethrow if LoadFacebookUser throws", async () => {
     const loadFacebookUserApiSpy = new LoadFacebookUserApiSpy();
     jest
       .spyOn(loadFacebookUserApiSpy, "loadUser")
@@ -147,7 +147,7 @@ describe("FacebookAuthentication UseCase", () => {
   test("Should rethrow if TokenGenerator throws", async () => {
     const tokenGeneratorSpy = new TokenGeneratorSpy();
     jest
-      .spyOn(tokenGeneratorSpy, "generateToken")
+      .spyOn(tokenGeneratorSpy, "generate")
       .mockRejectedValueOnce(new Error("token_error"));
 
     const { sut } = makeSut({ tokenGeneratorSpy });

@@ -1,7 +1,7 @@
 import {
   LoadUserAccountByEmailRepo,
   SaveFacebookAccountRepo,
-} from "@/data/repos";
+} from "@/data/contracts/repos";
 
 export class UserAccountSpy
   implements LoadUserAccountByEmailRepo, SaveFacebookAccountRepo

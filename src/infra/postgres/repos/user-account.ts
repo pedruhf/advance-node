@@ -1,6 +1,6 @@
 import { getRepository } from "typeorm";
 
-import { LoadUserAccountByEmailRepo, SaveFacebookAccountRepo } from "@/data/repos";
+import { LoadUserAccountByEmailRepo, SaveFacebookAccountRepo } from "@/data/contracts/repos";
 import { PgUser } from "@/infra/postgres/entities";
 
 export class PgUserAccountRepo implements LoadUserAccountByEmailRepo, SaveFacebookAccountRepo {

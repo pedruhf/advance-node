@@ -1,11 +1,11 @@
-import { TokenValidator } from "@/data/contracts/crypto";
+import { TokenValidator } from "@/data/contracts/gateways";
 
 export class TokenValidatorSpy implements TokenValidator {
   public callsCount = 0;
   public input?: TokenValidator.Params;
   public output: TokenValidator.Result = "any_id";
 
-  async validateToken(params: TokenValidator.Params): Promise<TokenValidator.Result> {
+  async validate(params: TokenValidator.Params): Promise<TokenValidator.Result> {
     this.callsCount++;
     this.input = params;
 

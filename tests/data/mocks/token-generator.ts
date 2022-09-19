@@ -1,11 +1,11 @@
-import { TokenGenerator } from "@/data/contracts/crypto";
+import { TokenGenerator } from "@/data/contracts/gateways";
 
 export class TokenGeneratorSpy implements TokenGenerator {
   callsCount = 0;
   data?: TokenGenerator.Params;
   result = "any_generated_token";
 
-  async generateToken(
+  async generate(
     params: TokenGenerator.Params
   ): Promise<TokenGenerator.Result> {
     this.callsCount++;
