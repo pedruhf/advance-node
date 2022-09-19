@@ -3,6 +3,6 @@ export interface SaveUserPictureRepo {
 }
 
 export namespace SaveUserPictureRepo {
-  export type Params = { pictureUrl: string };
+  export type Params = { pictureUrl?: string };
   export type Result = void;
 }

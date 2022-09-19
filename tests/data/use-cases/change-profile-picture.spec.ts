@@ -45,4 +45,11 @@ describe("ChangeProfilePicture UseCase", () => {
     expect(userProfileRepo.savePicture).toHaveBeenCalledWith({ pictureUrl: "any_url" });
     expect(userProfileRepo.savePicture).toHaveBeenCalledTimes(1);
   });
+
+  test("Should call SaveUserPictureRepo with correct input when file is undefined", async () => {
+    await sut({ userId: "any_user_id", file: undefined });
+
+    expect(userProfileRepo.savePicture).toHaveBeenCalledWith({ pictureUrl: undefined });
+    expect(userProfileRepo.savePicture).toHaveBeenCalledTimes(1);
+  });
 });
