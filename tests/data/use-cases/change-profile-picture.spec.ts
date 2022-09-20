@@ -19,6 +19,7 @@ describe("ChangeProfilePicture UseCase", () => {
     fileStorage.upload.mockResolvedValue("any_url");
     crypto = mock();
     userProfileRepo = mock();
+    userProfileRepo.load.mockResolvedValue({ name: "Pedro Henrique de Freitas Silva" });
     crypto.uuid.mockReturnValue(uuid);
   });
 
@@ -49,7 +50,31 @@ describe("ChangeProfilePicture UseCase", () => {
   test("Should call SaveUserPictureRepo with correct input when file is undefined", async () => {
     await sut({ userId: "any_user_id", file: undefined });
 
-    expect(userProfileRepo.savePicture).toHaveBeenCalledWith({ pictureUrl: undefined });
+    expect(userProfileRepo.savePicture).toHaveBeenCalledWith({ pictureUrl: undefined, initials: "PS" });
+    expect(userProfileRepo.savePicture).toHaveBeenCalledTimes(1);
+  });
+
+  test("Should call SaveUserPictureRepo with correct input when file is undefined", async () => {
+    userProfileRepo.load.mockResolvedValue({ name: "pedro" });
+    await sut({ userId: "any_user_id", file: undefined });
+
+    expect(userProfileRepo.savePicture).toHaveBeenCalledWith({ pictureUrl: undefined, initials: "PE" });
+    expect(userProfileRepo.savePicture).toHaveBeenCalledTimes(1);
+  });
+
+  test("Should call SaveUserPictureRepo with correct input when file is undefined", async () => {
+    userProfileRepo.load.mockResolvedValue({ name: "p" });
+    await sut({ userId: "any_user_id", file: undefined });
+
+    expect(userProfileRepo.savePicture).toHaveBeenCalledWith({ pictureUrl: undefined, initials: "P" });
+    expect(userProfileRepo.savePicture).toHaveBeenCalledTimes(1);
+  });
+
+  test("Should call SaveUserPictureRepo with correct input when file is undefined", async () => {
+    userProfileRepo.load.mockResolvedValue({ name: undefined });
+    await sut({ userId: "any_user_id", file: undefined });
+
+    expect(userProfileRepo.savePicture).toHaveBeenCalledWith({ pictureUrl: undefined, initials: undefined });
     expect(userProfileRepo.savePicture).toHaveBeenCalledTimes(1);
   });
 
