@@ -100,4 +100,13 @@ describe("ChangeProfilePicture UseCase", () => {
       expect(fileStorage.delete).not.toHaveBeenCalled();
     });
   });
+
+  test("Should rethrow if SaveUserPictureRepo throws", async () => {
+    const error = new Error("save_error");
+    userProfileRepo.savePicture.mockRejectedValueOnce(error);
+
+    const resultPromise = sut({ userId: "any_user_id", file: undefined });
+
+    await expect(resultPromise).rejects.toThrow(error);
+  });
 });

@@ -22,11 +22,11 @@ export const setupChangeProfilePicture: Setup = (fileStorage, crypto, userProfil
     userProfile.setPicture(data);
     try {
       await userProfileRepo.savePicture(userProfile);
-    } catch {
+    } catch (error) {
       if (file) {
         await fileStorage.delete({ key });
       }
-      throw new Error();
+      throw error;
     }
     return userProfile;
   };
