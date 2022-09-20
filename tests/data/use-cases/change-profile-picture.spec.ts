@@ -7,7 +7,6 @@ import { UserProfile } from "@/domain/entities";
 
 jest.mock("@/domain/entities/user-profile");
 
-
 describe("ChangeProfilePicture UseCase", () => {
   let uuid: string;
   let file: Buffer;
@@ -62,5 +61,20 @@ describe("ChangeProfilePicture UseCase", () => {
     await sut({ userId: "any_user_id", file });
 
     expect(userProfileRepo.load).not.toHaveBeenCalled();
+  });
+
+  test("Should return correct data on success", async () => {
+    jest.mocked(UserProfile).mockImplementationOnce(() => ({
+      setPicture: jest.fn(),
+      id: "any_id",
+      pictureUrl: "any_url",
+      initials: "any_initials",
+    }));
+    const result = await sut({ userId: "any_user_id", file });
+
+    expect(result).toMatchObject({
+      pictureUrl: "any_url",
+      initials: "any_initials",
+    });
   });
 });
