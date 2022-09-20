@@ -1,9 +1,9 @@
-import { UploadFile, UUIDGenerator } from "@/data/contracts/gateways";
+import { DeleteFile, UploadFile, UUIDGenerator } from "@/data/contracts/gateways";
 import { LoadUserProfile, SaveUserPictureRepo } from "@/data/contracts/repos";
 import { UserProfile } from "@/domain/entities";
 
 type Setup = (
-  fileStorage: UploadFile,
+  fileStorage: UploadFile & DeleteFile,
   crypto: UUIDGenerator,
   userProfileRepo: SaveUserPictureRepo & LoadUserProfile
 ) => ChangeProfilePicture;
@@ -20,7 +20,11 @@ export const setupChangeProfilePicture: Setup = (fileStorage, crypto, userProfil
     };
     const userProfile = new UserProfile(userId);
     userProfile.setPicture(data);
-    await userProfileRepo.savePicture(userProfile);
+    try {
+      await userProfileRepo.savePicture(userProfile);
+    } catch {
+      await fileStorage.delete({ key });
+    }
     return userProfile;
   };
 };
