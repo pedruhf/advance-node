@@ -101,6 +101,24 @@ describe("ChangeProfilePicture UseCase", () => {
     });
   });
 
+  test("Should rethrow if UploadFile throws", async () => {
+    const error = new Error("upload_error");
+    fileStorage.upload.mockRejectedValueOnce(error);
+
+    const resultPromise = sut({ userId: "any_user_id", file });
+
+    await expect(resultPromise).rejects.toThrow(error);
+  });
+
+  test("Should rethrow if LoadUserProfile throws", async () => {
+    const error = new Error("load_error");
+    userProfileRepo.load.mockRejectedValueOnce(error);
+
+    const resultPromise = sut({ userId: "any_user_id", file: undefined });
+
+    await expect(resultPromise).rejects.toThrow(error);
+  });
+
   test("Should rethrow if SaveUserPictureRepo throws", async () => {
     const error = new Error("save_error");
     userProfileRepo.savePicture.mockRejectedValueOnce(error);
