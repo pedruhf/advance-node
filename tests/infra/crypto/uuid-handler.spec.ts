@@ -12,7 +12,7 @@ describe("UUID Handler", () => {
   });
 
   test("Should call uuid.v4", () => {
-    sut.uuid({ key: "any_key " });
+    sut.uuid({ key: "any_key" });
 
     expect(v4).toHaveBeenCalledTimes(1);
   });
