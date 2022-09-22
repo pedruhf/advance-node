@@ -1,5 +1,5 @@
 import { FacebookAccount } from "@/domain/entities";
-import { accountModelmock, fbModelMock } from "../mocks";
+import { accountModelmock, fbModelMock } from "@/tests/domain/mocks";
 
 describe("FacebookAccount", () => {
   const fbData = fbModelMock();

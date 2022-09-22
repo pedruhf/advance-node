@@ -1,7 +1,7 @@
 import { getRepository } from "typeorm";
 
 import { LoadUserAccountByEmailRepo, SaveFacebookAccountRepo } from "@/data/contracts/repos";
-import { PgUser } from "@/infra/postgres/entities";
+import { PgUser } from "@/infra/repos/postgres/entities";
 
 export class PgUserAccountRepo implements LoadUserAccountByEmailRepo, SaveFacebookAccountRepo {
   async load({ email }: LoadUserAccountByEmailRepo.Params): Promise<LoadUserAccountByEmailRepo.Result> {

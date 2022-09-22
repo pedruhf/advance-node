@@ -1,5 +1,5 @@
 import { LoadFacebookUser } from "@/data/contracts/gateways";
-import { fbModelMock } from "../../domain/mocks";
+import { fbModelMock } from "@/tests/domain/mocks";
 
 export class LoadFacebookUserApiSpy implements LoadFacebookUser {
   token?: string;

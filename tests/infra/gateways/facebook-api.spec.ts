@@ -1,4 +1,4 @@
-import { FacebookApi } from "@/infra/apis";
+import { FacebookApi } from "@/infra/gateways";
 import { HttpGetClientSpy } from "@/tests/infra/mocks";
 import { fbModelMock } from "@/tests/domain/mocks";
 

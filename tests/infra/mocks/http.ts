@@ -1,4 +1,4 @@
-import { HttpGetClient } from "@/infra/http";
+import { HttpGetClient } from "@/infra/gateways";
 
 export class HttpGetClientSpy implements HttpGetClient {
   url?: string;

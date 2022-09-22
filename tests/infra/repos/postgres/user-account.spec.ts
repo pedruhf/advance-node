@@ -1,8 +1,8 @@
 import { IBackup } from "pg-mem";
 import { getRepository, Repository, getConnection } from "typeorm";
 
-import { PgUserAccountRepo } from "@/infra/postgres/repos";
-import { PgUser } from "@/infra/postgres/entities";
+import { PgUserAccountRepo } from "@/infra/repos/postgres";
+import { PgUser } from "@/infra/repos/postgres/entities";
 import { makeFakeDb } from "@/tests/infra/mocks";
 
 type SutTypes = {
