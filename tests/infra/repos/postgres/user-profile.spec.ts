@@ -41,13 +41,23 @@ describe("PgUserProfileRepo", () => {
       const { id } = await pgUserRepo.save({ email: "any_email", initials: "any_initials" });
       await sut.savePicture({ id: id.toString(), pictureUrl: "any_url" });
 
-      const user = await pgUserRepo.findOne(id) as PgUser;
+      const user = (await pgUserRepo.findOne(id)) as PgUser;
       expect(user).toMatchObject({
         id,
         email: "any_email",
         pictureUrl: "any_url",
         initials: null,
       });
+    });
+  });
+
+  describe("load", () => {
+    test("Should load user profile", async () => {
+      const { sut } = makeSut();
+      const { id } = await pgUserRepo.save({ email: "any_email", name: "any_name" });
+      const user = await sut.load({ userId: id.toString() });
+
+      expect(user?.name).toBe("any_name");
     });
   });
 });
