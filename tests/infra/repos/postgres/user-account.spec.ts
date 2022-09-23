@@ -89,7 +89,7 @@ describe("PgUserAccountRepo", () => {
 
       const account = await pgUserRepo.findOne({ id: 1 });
 
-      expect(account).toEqual({
+      expect(account).toMatchObject({
         id: 1,
         email: "any_email",
         name: "new_name",
