@@ -59,5 +59,12 @@ describe("PgUserProfileRepo", () => {
 
       expect(user?.name).toBe("any_name");
     });
+
+    test("Should return undefined ", async () => {
+      const { sut } = makeSut();
+      const user = await sut.load({ userId: "1" });
+
+      expect(user).toBeUndefined();
+    });
   });
 });
