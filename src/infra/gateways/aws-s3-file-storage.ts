@@ -1,6 +1,6 @@
 import { config, S3 } from "aws-sdk";
 
-import { UploadFile } from "@/data/contracts/gateways";
+import { DeleteFile, UploadFile } from "@/data/contracts/gateways";
 
 export class AwsS3FileStorage {
   constructor(private readonly accessKeyId: string, private readonly secretAccessKey: string, private readonly bucket: string) {
@@ -23,5 +23,10 @@ export class AwsS3FileStorage {
       })
       .promise();
     return `https://${this.bucket}.s3.amazonaws.com/${encodeURIComponent(key)}`;
+  }
+
+  async delete({ key }: DeleteFile.Input): Promise<DeleteFile.Output> {
+    const s3 = new S3();
+    await s3.deleteObject({ Bucket: this.bucket, Key: key }).promise();
   }
 }
