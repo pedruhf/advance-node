@@ -4,3 +4,4 @@ export * from "./uuid-handler";
 export * from "./unique-id";
 export * from "./http-client";
 export * from "./axios-client";
+export * from "./aws-s3-file-storage";
