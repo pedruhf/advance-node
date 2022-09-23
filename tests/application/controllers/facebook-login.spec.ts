@@ -1,4 +1,4 @@
-import { FacebookLoginController } from "@/application/controllers";
+import { Controller, FacebookLoginController } from "@/application/controllers";
 import { UnauthorizedError } from "@/application/errors";
 import { FacebookAuthenticationSpy } from "@/tests/infra/mocks";
 import { RequiredStringValidator } from "@/application/validation";
@@ -21,6 +21,12 @@ const makeSut = (): SutTypes => {
 
 describe("FacebookLoginController", () => {
   const token = "any_token";
+
+  it("Should extend Controller", async () => {
+    const { sut } = makeSut();
+
+    expect(sut).toBeInstanceOf(Controller);
+  });
 
   it("Should build Validators correctly", async () => {
     const { sut } = makeSut();
