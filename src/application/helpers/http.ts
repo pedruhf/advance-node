@@ -7,6 +7,7 @@ export type HttpResponse<T = any> = {
 
 export enum HttpStatusCode {
   ok = 200,
+  noContent = 204,
   badRequest = 400,
   unauthorized = 401,
   forbidden = 403,
@@ -16,6 +17,11 @@ export enum HttpStatusCode {
 export const success = <T = any> (data: T): HttpResponse<T> => ({
   statusCode: HttpStatusCode.ok,
   data,
+});
+
+export const noContent = (): HttpResponse => ({
+  statusCode: HttpStatusCode.noContent,
+  data: null,
 });
 
 export const badRequest = (error: Error): HttpResponse<Error> => ({
