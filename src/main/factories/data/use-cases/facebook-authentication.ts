@@ -1,7 +1,7 @@
 import { FacebookAuthenticationUseCase } from "@/data/use-cases";
-import { makeFacebookApi } from "@/main/factories/gateways";
-import { makePgUserAccountRepo } from "@/main/factories/repos";
-import { makeJwtTokenHandler } from "@/main/factories/gateways";
+import { makeFacebookApi } from "@/main/factories/infra/gateways";
+import { makePgUserAccountRepo } from "@/main/factories/infra/repos";
+import { makeJwtTokenHandler } from "@/main/factories/infra/gateways";
 
 export const makeFacebookAuthenticationUseCase = (): FacebookAuthenticationUseCase => {
   const facebookApi = makeFacebookApi();
