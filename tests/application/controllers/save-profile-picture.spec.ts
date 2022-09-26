@@ -15,6 +15,9 @@ class SaveProfilePicture {
     if (!["image/png", "image/jpg", "image/jpeg"].includes(file.mimeType)) {
       return badRequest(new InvalidMymeTypeError(["png", "jpg", "jpeg"]));
     }
+    if (file.buffer.length > 5 * 1024 * 1024) {
+      return badRequest(new MaxFileSizeError(5));
+    }
 
     return noContent();
   }
@@ -24,6 +27,13 @@ class InvalidMymeTypeError extends Error {
   constructor(allowed: string[]) {
     super(`Tipo não suportado. Tipos permitidos: ${allowed.join(", ")}`);
     this.name = "InvalidMymeTypeError";
+  }
+}
+
+class MaxFileSizeError extends Error {
+  constructor(maxSizeInMB: number) {
+    super(`O tamanho máximo suportado para este tipo de arquivo é ${maxSizeInMB}MB`);
+    this.name = "MaxFileSizeError";
   }
 }
 
@@ -101,6 +111,16 @@ describe("SaveProfilePicture Controller", () => {
     expect(httpResponse).not.toEqual({
       statusCode: HttpStatusCode.badRequest,
       data: new InvalidMymeTypeError(["png", "jpg", "jpeg"]),
+    });
+  });
+
+  test("Should return 400 if file size is bigger than 5MB", async () => {
+    const invalid_buffer = Buffer.from(new ArrayBuffer(6 * 1024 * 1024)); // 6MB
+    const httpResponse = await sut.handle({ file: { buffer: invalid_buffer, mimeType } });
+
+    expect(httpResponse).toEqual({
+      statusCode: HttpStatusCode.badRequest,
+      data: new MaxFileSizeError(5),
     });
   });
 });
