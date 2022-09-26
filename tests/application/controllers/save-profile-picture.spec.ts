@@ -25,4 +25,13 @@ describe("SaveProfilePicture Controller", () => {
       data: new RequiredFieldError("foto"),
     });
   });
+
+  test("Should return 400 if file is not provided", async () => {
+    const httpResponse = await sut.handle({ file: null });
+
+    expect(httpResponse).toEqual({
+      statusCode: HttpStatusCode.badRequest,
+      data: new RequiredFieldError("foto"),
+    });
+  });
 });
