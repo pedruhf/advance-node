@@ -6,13 +6,6 @@ export class ServerError extends Error {
   }
 }
 
-export class RequiredFieldError extends Error {
-  constructor(fieldName: string) {
-    super(`O campo ${fieldName} é obrigatório`);
-    this.name = "RequiredFieldError";
-  }
-}
-
 export class UnauthorizedError extends Error {
   constructor() {
     super("Não autorizado");

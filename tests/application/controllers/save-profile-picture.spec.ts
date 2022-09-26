@@ -1,50 +1,12 @@
-import { RequiredFieldError } from "@/application/errors";
-import { badRequest, HttpResponse, HttpStatusCode, success } from "@/application/helpers";
-import { ChangeProfilePicture } from "@/data/use-cases";
-
-type HttpRequest = { userId: string; file: { buffer: Buffer; mimeType: string } };
-type Model = { pictureUrl?: string; initials?: string } | Error;
-
-class SaveProfilePicture {
-  constructor (private readonly changeProfilePicture: ChangeProfilePicture) {}
-  
-  async handle({ userId, file }: HttpRequest): Promise<HttpResponse<Model>> {
-    if (!file) {
-      return badRequest(new RequiredFieldError("foto"));
-    }
-    if (file.buffer.length === 0) {
-      return badRequest(new RequiredFieldError("foto"));
-    }
-    if (!["image/png", "image/jpg", "image/jpeg"].includes(file.mimeType)) {
-      return badRequest(new InvalidMimeTypeError(["png", "jpg", "jpeg"]));
-    }
-    if (file.buffer.length > 5 * 1024 * 1024) {
-      return badRequest(new MaxFileSizeError(5));
-    }
-    const data = await this.changeProfilePicture({ userId, file: file.buffer });
-    return success(data);
-  }
-}
-
-class InvalidMimeTypeError extends Error {
-  constructor(allowed: string[]) {
-    super(`Tipo não suportado. Tipos permitidos: ${allowed.join(", ")}`);
-    this.name = "InvalidMimeTypeError";
-  }
-}
-
-class MaxFileSizeError extends Error {
-  constructor(maxSizeInMB: number) {
-    super(`O tamanho máximo suportado para este tipo de arquivo é ${maxSizeInMB}MB`);
-    this.name = "MaxFileSizeError";
-  }
-}
+import { SaveProfilePicture } from "@/application/controllers/save-profile-picture";
+import { InvalidMimeTypeError, MaxFileSizeError, RequiredFieldError } from "@/application/errors";
+import { HttpStatusCode } from "@/application/helpers";
 
 describe("SaveProfilePicture Controller", () => {
   let sut: SaveProfilePicture;
   let buffer: Buffer;
   let mimeType: string;
-  let file: { buffer: Buffer, mimeType: string };
+  let file: { buffer: Buffer; mimeType: string };
   let userId: string;
   let changeProfilePicture: jest.Mock;
 
@@ -145,7 +107,7 @@ describe("SaveProfilePicture Controller", () => {
 
     expect(httpResponse).toEqual({
       statusCode: HttpStatusCode.ok,
-      data: { initials: "any_initials", pictureUrl: "any_url" }
+      data: { initials: "any_initials", pictureUrl: "any_url" },
     });
   });
 });
