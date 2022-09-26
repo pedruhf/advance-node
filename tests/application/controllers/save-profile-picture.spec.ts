@@ -1,6 +1,5 @@
 import { Controller } from "@/application/controllers";
 import { SaveProfilePicture } from "@/application/controllers/save-profile-picture";
-import { InvalidMimeTypeError, MaxFileSizeError, RequiredFieldError } from "@/application/errors";
 import { HttpStatusCode } from "@/application/helpers";
 import { AllowedMimeTypesValidator, MaxFileSizeValidator, RequiredBufferValidator, RequiredValidator } from "@/application/validation";
 
@@ -32,8 +31,8 @@ describe("SaveProfilePicture Controller", () => {
     const validators = sut.buildValidators({ file, userId });
 
     expect(validators).toEqual([
-      new RequiredValidator(file, "file"),
-      new RequiredBufferValidator(buffer, "buffer"),
+      new RequiredValidator(file, "foto"),
+      new RequiredBufferValidator(buffer, "foto"),
       new AllowedMimeTypesValidator(["png", "jpg"], mimeType),
       new MaxFileSizeValidator(5, buffer)
     ]);
