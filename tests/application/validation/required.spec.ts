@@ -1,5 +1,5 @@
 import { RequiredFieldError } from "@/application/errors";
-import { RequiredStringValidator, RequiredValidator } from "@/application/validation";
+import { RequiredBufferValidator, RequiredStringValidator, RequiredValidator } from "@/application/validation";
 
 describe("RequiredValidator", () => {
   test("Should return RequiredFieldError if value is null", () => {
@@ -40,6 +40,28 @@ describe("RequiredStringValidator", () => {
 
   test("Should return undefined if value is truthy", () => {
     const sut = new RequiredStringValidator("any_value", "any_field");
+    const error = sut.validate();
+
+    expect(error).toBeUndefined();
+  });
+});
+
+describe("RequiredBufferValidator", () => {
+  test("Should extend RequiredValidator", () => {
+    const sut = new RequiredStringValidator("", "any_field");
+
+    expect(sut).toBeInstanceOf(RequiredValidator);
+  });
+
+  test("Should return RequiredFieldError if value is empty", () => {
+    const sut = new RequiredBufferValidator(Buffer.from(""), "any_field");
+    const error = sut.validate();
+
+    expect(error).toEqual(new RequiredFieldError("any_field"));
+  });
+
+  test("Should return undefined if value is truthy", () => {
+    const sut = new RequiredBufferValidator(Buffer.from("any_value"), "any_field");
     const error = sut.validate();
 
     expect(error).toBeUndefined();
