@@ -11,8 +11,13 @@ class SaveProfilePicture {
 }
 
 describe("SaveProfilePicture Controller", () => {
+  let sut: SaveProfilePicture;
+
+  beforeEach(() => {
+    sut = new SaveProfilePicture();
+  });
+
   test("Should return 400 if file is not provided", async () => {
-    const sut = new SaveProfilePicture();
     const httpResponse = await sut.handle({ file: undefined });
 
     expect(httpResponse).toEqual({
