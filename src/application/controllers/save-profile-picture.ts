@@ -2,6 +2,7 @@ import { InvalidMimeTypeError, MaxFileSizeError, RequiredFieldError } from "@/ap
 import { badRequest, HttpResponse, success } from "@/application/helpers";
 import { ChangeProfilePicture } from "@/data/use-cases";
 import { Controller } from "@/application/controllers";
+import { AllowedMimeTypesValidator, MaxFileSizeValidator, RequiredBufferValidator, RequiredValidator, Validator } from "@/application//validation";
 
 type HttpRequest = { userId: string; file: { buffer: Buffer; mimeType: string } };
 type Model = { pictureUrl?: string; initials?: string } | Error;
@@ -26,5 +27,15 @@ export class SaveProfilePicture extends Controller {
     }
     const data = await this.changeProfilePicture({ userId, file: file.buffer });
     return success(data);
+  }
+
+  override buildValidators({ file }: HttpRequest): Validator[] {
+    const validators = [
+      new RequiredValidator(file, "file"),
+      new RequiredBufferValidator(file.buffer, "buffer"),
+      new AllowedMimeTypesValidator(["png", "jpg"], file.mimeType),
+      new MaxFileSizeValidator(5, file.buffer),
+    ];
+    return validators;
   }
 }
