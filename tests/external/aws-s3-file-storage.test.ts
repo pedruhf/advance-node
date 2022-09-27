@@ -10,13 +10,13 @@ describe("AwsApi", () => {
 
   test("Should upload image to aws s3", async () => {
     // const onePixelImage = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAA1JREFUGFdjCHE+8h8ABKUCW9ZR10YAAAAASUVORK5CYII=";
-    // const key = "any_key.png";
+    // const fileName = "any_file_name.png";
     // const file = Buffer.from(onePixelImage, "base64");
-    // const pictureUrl = await sut.upload({ key , file });
+    // const pictureUrl = await sut.upload({ fileName , file });
 
     // expect((await axios.get(pictureUrl)).status).toBe(200);
 
-    // await sut.delete({ key });
+    // await sut.delete({ fileName });
 
     // expect(axios.get(pictureUrl)).rejects.toThrow();
 

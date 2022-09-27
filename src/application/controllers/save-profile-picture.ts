@@ -25,7 +25,7 @@ export class SaveProfilePicture extends Controller {
     if (file.buffer.length > 5 * 1024 * 1024) {
       return badRequest(new MaxFileSizeError(5));
     }
-    const data = await this.changeProfilePicture({ userId, file: file.buffer });
+    const data = await this.changeProfilePicture({ userId, file });
     return success(data);
   }
 
