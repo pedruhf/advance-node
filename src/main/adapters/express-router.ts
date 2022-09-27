@@ -7,8 +7,8 @@ type Adapter = (controller: Controller) => RequestHandler;
 
 export const adaptExpressRoute: Adapter = (controller) => {
   return async (req, res) => {
-    const { statusCode, data } = await controller.handle({ ...req.body });
-    const json = statusCode === HttpStatusCode.ok ? data : { error: data.message };
+    const { statusCode, data } = await controller.handle({ ...req.body, ...req.locals });
+    const json = [HttpStatusCode.ok, HttpStatusCode.noContent].includes(statusCode) ? data : { error: data.message };
     res.status(statusCode).json(json);
   };
 };

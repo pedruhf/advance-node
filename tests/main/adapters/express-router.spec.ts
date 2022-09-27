@@ -21,14 +21,14 @@ const makeSut = (): SutTypes => {
 
 describe("ExpressRouter", () => {
   test("Should call handle with correct request", async () => {
-    const req = getMockReq({ body: { anyField: "any_value" } });
+    const req = getMockReq({ body: { anyBody: "any_value" }, locals: { anyLocals: "any_value" } });
     const { res, next } = getMockRes();
 
     const { sut, controllerSpy } = makeSut();
     const handleSpy = jest.spyOn(controllerSpy, "handle");
     await sut(req, res, next);
 
-    expect(handleSpy).toHaveBeenLastCalledWith({ anyField: "any_value" });
+    expect(handleSpy).toHaveBeenLastCalledWith({ anyBody: "any_value", anyLocals: "any_value" });
     expect(handleSpy).toHaveBeenCalledTimes(1);
   });
 
@@ -54,6 +54,23 @@ describe("ExpressRouter", () => {
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.json).toHaveBeenCalledWith("any_data");
+    expect(res.json).toHaveBeenCalledTimes(1);
+  });
+
+  test("Should respond with 204 and valid data", async () => {
+    const req = getMockReq({ body: { anyField: "any_value" } });
+    const { res, next } = getMockRes();
+
+    const { sut, controllerSpy } = makeSut();
+    controllerSpy.result = {
+      statusCode: 204,
+      data: null,
+    };
+    await sut(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(204);
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith(null);
     expect(res.json).toHaveBeenCalledTimes(1);
   });
 
