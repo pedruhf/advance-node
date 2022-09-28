@@ -10,12 +10,12 @@ class DbTransactionControllerDecorator {
     try {
       const httpResponse = await this.decoratee.perform(httpRequest);
       await this.db.commitTransaction();
-      await this.db.closeTransaction();
       return httpResponse;
     } catch (error) {
       await this.db.rollbackTransaction();
-      await this.db.closeTransaction();
       throw error;
+    } finally {
+      await this.db.closeTransaction();
     }
   }
 }
@@ -98,7 +98,6 @@ describe("DbTransactionControllerDecorator", () => {
       expect(closeTransactionSpy).toHaveBeenCalled();
       expect(closeTransactionSpy).toHaveBeenCalledTimes(1);
     });
-
   });
 
   test("Should return the same result as decoratee on success", async () => {
