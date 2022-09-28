@@ -1,5 +1,5 @@
 import request from "supertest";
-import { getConnection, getRepository, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { IBackup } from "pg-mem";
 import { sign } from "jsonwebtoken";
 
@@ -7,15 +7,18 @@ import { app } from "@/main/config/app";
 import { PgUser } from "@/infra/repos/postgres/entities";
 import { makeFakeDb } from "@/tests/infra/mocks";
 import { env } from "@/main/config/env";
+import { PgConnection } from "@/infra/repos/postgres/helpers";
 
 describe("User Routes", () => {
+  let connection: PgConnection;
   let backup: IBackup;
   let pgUserRepo: Repository<PgUser>;
 
   beforeAll(async () => {
+    connection = PgConnection.getInstance();
     const db = await makeFakeDb([PgUser]);
     backup = db.backup();
-    pgUserRepo = getRepository(PgUser);
+    pgUserRepo = connection.getRepository(PgUser);
   });
 
   beforeEach(() => {
@@ -23,7 +26,7 @@ describe("User Routes", () => {
   });
 
   afterAll(async () => {
-    await getConnection().close();
+    await connection.disconnect();
   });
 
   describe("DELETE /users/picture", () => {

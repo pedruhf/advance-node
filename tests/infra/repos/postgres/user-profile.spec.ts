@@ -1,9 +1,11 @@
 import { IBackup } from "pg-mem";
-import { getRepository, Repository, getConnection } from "typeorm";
+import { Repository } from "typeorm";
 
 import { PgUserProfileRepo } from "@/infra/repos/postgres";
 import { PgUser } from "@/infra/repos/postgres/entities";
 import { makeFakeDb } from "@/tests/infra/mocks";
+import { PgRepo } from "@/infra/repos/postgres/repository";
+import { PgConnection } from "@/infra/repos/postgres/helpers";
 
 type SutTypes = {
   sut: PgUserProfileRepo;
@@ -18,21 +20,28 @@ const makeSut = (): SutTypes => {
 };
 
 describe("PgUserProfileRepo", () => {
+  let connection: PgConnection;
   let pgUserRepo: Repository<PgUser>;
   let backup: IBackup;
 
   beforeAll(async () => {
+    connection = PgConnection.getInstance();
     const db = await makeFakeDb([PgUser]);
     backup = db.backup();
-    pgUserRepo = getRepository(PgUser);
+    pgUserRepo = connection.getRepository(PgUser);
   });
 
   afterAll(async () => {
-    await getConnection().close();
+    await connection.disconnect();
   });
 
   beforeEach(() => {
     backup.restore();
+  });
+
+  test("Should extend PgRepositoty", () => {
+    const { sut } = makeSut();
+    expect(sut).toBeInstanceOf(PgRepo);
   });
 
   describe("savePicture", () => {
