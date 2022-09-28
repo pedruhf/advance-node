@@ -2,10 +2,12 @@ import { Controller } from "@/application/controllers";
 import { HttpResponse } from "@/application/helpers";
 import { ControllerStub } from "@/tests/application/mocks";
 
-class DbTransactionControllerDecorator {
-  constructor(private readonly decoratee: Controller, private readonly db: DbTransaction) {}
+class DbTransactionControllerDecorator extends Controller {
+  constructor(private readonly decoratee: Controller, private readonly db: DbTransaction) {
+    super();
+  }
 
-  async perform(httpRequest: any): Promise<HttpResponse | undefined> {
+  async perform(httpRequest: any): Promise<HttpResponse> {
     await this.db.openTransaction();
     try {
       const httpResponse = await this.decoratee.perform(httpRequest);
@@ -53,6 +55,12 @@ const makeSut = (): SutTypes => {
 };
 
 describe("DbTransactionControllerDecorator", () => {
+  test("Should extend Controller", async () => {
+    const { sut } = makeSut();
+
+    expect(sut).toBeInstanceOf(Controller);
+  });
+
   test("Should open transaction", async () => {
     const { sut, dbTransactionSpy } = makeSut();
     const openTransactionSpy = jest.spyOn(dbTransactionSpy, "openTransaction");
