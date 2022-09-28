@@ -31,8 +31,18 @@ class PgConnection {
   }
 
   async disconnect(): Promise<void> {
+    if (!this.queryRunner) {
+      throw new ConnectionNotFoundError();
+    }
     await getConnection().close();
     this.queryRunner = undefined;
+  }
+}
+
+class ConnectionNotFoundError extends Error {
+  constructor() {
+    super("Conexão com o banco de dados não encontrada");
+    this.name = "ConnectionNotFoundError";
   }
 }
 
@@ -51,7 +61,7 @@ describe("PgConnection", () => {
       has: hasSpy,
     });
     jest.mocked(getConnectionManager).mockImplementation(getConnectionManagerSpy);
-    createQueryRunnerSpy = jest.fn();
+    createQueryRunnerSpy = jest.fn().mockReturnValue({});
     createConnectionSpy = jest.fn().mockResolvedValue({
       createQueryRunner: createQueryRunnerSpy,
     });
@@ -99,5 +109,12 @@ describe("PgConnection", () => {
 
     expect(closeSpy).toHaveBeenCalledWith();
     expect(closeSpy).toHaveBeenCalledTimes(1);
+  });
+
+  test("Should return ConnectionNotFoundError on disconnect when connection does not exists", async () => {
+    const promise = sut.disconnect();
+
+    expect(closeSpy).not.toHaveBeenCalled();
+    await expect(promise).rejects.toThrow(new ConnectionNotFoundError());
   });
 });
