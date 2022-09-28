@@ -9,24 +9,24 @@ import { makeFakeDb } from "@/tests/infra/mocks";
 import { env } from "@/main/config/env";
 
 describe("User Routes", () => {
+  let backup: IBackup;
+  let pgUserRepo: Repository<PgUser>;
+
+  beforeAll(async () => {
+    const db = await makeFakeDb([PgUser]);
+    backup = db.backup();
+    pgUserRepo = getRepository(PgUser);
+  });
+
+  beforeEach(() => {
+    backup.restore();
+  });
+
+  afterAll(async () => {
+    await getConnection().close();
+  });
+
   describe("DELETE /users/picture", () => {
-    let backup: IBackup;
-    let pgUserRepo: Repository<PgUser>;
-
-    beforeAll(async () => {
-      const db = await makeFakeDb([PgUser]);
-      backup = db.backup();
-      pgUserRepo = getRepository(PgUser);
-    });
-
-    beforeEach(() => {
-      backup.restore();
-    });
-
-    afterAll(async () => {
-      await getConnection().close();
-    });
-
     test("Should return 403 if no authorization header is present", async () => {
       const { status } = await request(app).delete("/api/users/picture");
 
@@ -40,6 +40,14 @@ describe("User Routes", () => {
 
       expect(status).toBe(200);
       expect(body).toEqual({ picturelUrl: undefined, initials: "PF" });
+    });
+  });
+
+  describe("PUT /users/picture", () => {
+    test("Should return 403 if no authorization header is present", async () => {
+      const { status } = await request(app).put("/api/users/picture");
+
+      expect(status).toBe(403);
     });
   });
 });
