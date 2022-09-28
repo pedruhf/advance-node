@@ -27,4 +27,11 @@ export class PgConnection {
     await getConnection().close();
     this.queryRunner = undefined;
   }
+
+  async openTransaction(): Promise<void> {
+    if (!this.queryRunner) {
+      throw new ConnectionNotFoundError();
+    }
+    await this.queryRunner.startTransaction();
+  }
 }
