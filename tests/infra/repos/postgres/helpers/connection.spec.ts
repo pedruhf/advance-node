@@ -1,4 +1,6 @@
-import { createConnection, getConnection, getConnectionManager, QueryRunner } from "typeorm";
+import { createConnection, getConnection, getConnectionManager } from "typeorm";
+
+import { PgConnection, ConnectionNotFoundError } from "@/infra/repos/postgres/helpers";
 
 jest.mock("typeorm", () => ({
   Entity: jest.fn(),
@@ -8,43 +10,6 @@ jest.mock("typeorm", () => ({
   getConnection: jest.fn(),
   getConnectionManager: jest.fn(),
 }));
-
-class PgConnection {
-  private static instance?: PgConnection;
-  private queryRunner?: QueryRunner;
-
-  private constructor() {}
-
-  static getInstance(): PgConnection {
-    if (!PgConnection.instance) {
-      PgConnection.instance = new PgConnection();
-      return PgConnection.instance;
-    }
-    return PgConnection.instance;
-  }
-
-  async connect(): Promise<void> {
-    const connection = getConnectionManager().has("default")
-      ? getConnection()
-      : await createConnection();
-    this.queryRunner = connection.createQueryRunner();
-  }
-
-  async disconnect(): Promise<void> {
-    if (!this.queryRunner) {
-      throw new ConnectionNotFoundError();
-    }
-    await getConnection().close();
-    this.queryRunner = undefined;
-  }
-}
-
-class ConnectionNotFoundError extends Error {
-  constructor() {
-    super("Conexão com o banco de dados não encontrada");
-    this.name = "ConnectionNotFoundError";
-  }
-}
 
 describe("PgConnection", () => {
   let getConnectionManagerSpy: jest.Mock;
@@ -85,8 +50,7 @@ describe("PgConnection", () => {
   });
 
   test("Should create a new connection", async () => {
-    hasSpy.mockReturnValueOnce(false),
-    await sut.connect();
+    hasSpy.mockReturnValueOnce(false), await sut.connect();
 
     expect(createConnectionSpy).toHaveBeenCalledWith();
     expect(createConnectionSpy).toHaveBeenCalledTimes(1);
