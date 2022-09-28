@@ -41,4 +41,18 @@ export class PgConnection {
     }
     await this.queryRunner.release();
   }
+
+  async commitTransaction(): Promise<void> {
+    if (!this.queryRunner) {
+      throw new ConnectionNotFoundError();
+    }
+    await this.queryRunner.commitTransaction();
+  }
+
+  async rollbackTransaction(): Promise<void> {
+    if (!this.queryRunner) {
+      throw new ConnectionNotFoundError();
+    }
+    await this.queryRunner.rollbackTransaction();
+  }
 }

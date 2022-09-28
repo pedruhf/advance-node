@@ -20,6 +20,8 @@ describe("PgConnection", () => {
   let closeSpy: jest.Mock;
   let startTransactionSpy: jest.Mock;
   let releaseSpy: jest.Mock;
+  let commitTransactionSpy: jest.Mock;
+  let rollbackTransactionSpy: jest.Mock;
   let sut: PgConnection;
 
   beforeAll(() => {
@@ -30,9 +32,13 @@ describe("PgConnection", () => {
     jest.mocked(getConnectionManager).mockImplementation(getConnectionManagerSpy);
     startTransactionSpy = jest.fn();
     releaseSpy = jest.fn();
+    commitTransactionSpy = jest.fn();
+    rollbackTransactionSpy = jest.fn();
     createQueryRunnerSpy = jest.fn().mockReturnValue({
       startTransaction: startTransactionSpy,
-      release: releaseSpy
+      release: releaseSpy,
+      commitTransaction: commitTransactionSpy,
+      rollbackTransaction: rollbackTransactionSpy,
     });
     createConnectionSpy = jest.fn().mockResolvedValue({
       createQueryRunner: createQueryRunnerSpy,
@@ -99,7 +105,7 @@ describe("PgConnection", () => {
     await sut.disconnect();
   });
 
-  test("Should return ConnectionNotFoundError openTransaction when connection does not exists", async () => {
+  test("Should return ConnectionNotFoundError on openTransaction when connection does not exists", async () => {
     const promise = sut.openTransaction();
 
     expect(startTransactionSpy).not.toHaveBeenCalled();
@@ -116,10 +122,44 @@ describe("PgConnection", () => {
     await sut.disconnect();
   });
 
-  test("Should return ConnectionNotFoundError closeTransaction when connection does not exists", async () => {
+  test("Should return ConnectionNotFoundError on closeTransaction when connection does not exists", async () => {
     const promise = sut.closeTransaction();
 
     expect(releaseSpy).not.toHaveBeenCalled();
+    await expect(promise).rejects.toThrow(new ConnectionNotFoundError());
+  });
+
+  test("Should commit transaction", async () => {
+    await sut.connect();
+    await sut.commitTransaction();
+
+    expect(commitTransactionSpy).toHaveBeenCalledWith();
+    expect(commitTransactionSpy).toHaveBeenCalledTimes(1);
+
+    await sut.disconnect();
+  });
+
+  test("Should return ConnectionNotFoundError on commitTransaction when connection does not exists", async () => {
+    const promise = sut.commitTransaction();
+
+    expect(commitTransactionSpy).not.toHaveBeenCalled();
+    await expect(promise).rejects.toThrow(new ConnectionNotFoundError());
+  });
+
+  test("Should rollback transaction", async () => {
+    await sut.connect();
+    await sut.rollbackTransaction();
+
+    expect(rollbackTransactionSpy).toHaveBeenCalledWith();
+    expect(rollbackTransactionSpy).toHaveBeenCalledTimes(1);
+
+    await sut.disconnect();
+  });
+
+  test("Should return ConnectionNotFoundError on rollbackTransaction when connection does not exists", async () => {
+    const promise = sut.rollbackTransaction();
+
+    expect(rollbackTransactionSpy).not.toHaveBeenCalled();
     await expect(promise).rejects.toThrow(new ConnectionNotFoundError());
   });
 });
