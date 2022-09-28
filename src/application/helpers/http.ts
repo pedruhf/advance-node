@@ -19,11 +19,6 @@ export const success = <T = any> (data: T): HttpResponse<T> => ({
   data,
 });
 
-export const noContent = (): HttpResponse => ({
-  statusCode: HttpStatusCode.noContent,
-  data: null,
-});
-
 export const badRequest = (error: Error): HttpResponse<Error> => ({
   statusCode: HttpStatusCode.badRequest,
   data: error,
