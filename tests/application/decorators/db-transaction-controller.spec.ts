@@ -12,9 +12,10 @@ class DbTransactionControllerDecorator {
       await this.db.commitTransaction();
       await this.db.closeTransaction();
       return httpResponse;
-    } catch {
+    } catch (error) {
       await this.db.rollbackTransaction();
       await this.db.closeTransaction();
+      throw error;
     }
   }
 }
@@ -90,13 +91,14 @@ describe("DbTransactionControllerDecorator", () => {
     const commitTransactionSpy = jest.spyOn(dbTransactionSpy, "commitTransaction");
     const rollbackTransactionSpy = jest.spyOn(dbTransactionSpy, "rollbackTransaction");
     const closeTransactionSpy = jest.spyOn(dbTransactionSpy, "closeTransaction");
-    await sut.perform({ any: "any" });
+    await sut.perform({ any: "any" }).catch(() => {
+      expect(commitTransactionSpy).not.toHaveBeenCalled();
+      expect(rollbackTransactionSpy).toHaveBeenCalled();
+      expect(rollbackTransactionSpy).toHaveBeenCalledTimes(1);
+      expect(closeTransactionSpy).toHaveBeenCalled();
+      expect(closeTransactionSpy).toHaveBeenCalledTimes(1);
+    });
 
-    expect(commitTransactionSpy).not.toHaveBeenCalled();
-    expect(rollbackTransactionSpy).toHaveBeenCalled();
-    expect(rollbackTransactionSpy).toHaveBeenCalledTimes(1);
-    expect(closeTransactionSpy).toHaveBeenCalled();
-    expect(closeTransactionSpy).toHaveBeenCalledTimes(1);
   });
 
   test("Should return the same result as decoratee on success", async () => {
@@ -111,5 +113,13 @@ describe("DbTransactionControllerDecorator", () => {
       statusCode: 200,
       data: { anyField: "any_value" },
     });
+  });
+
+  test("Should rethrow if decoratee throws", async () => {
+    const { sut, decorateeSpy } = makeSut();
+    jest.spyOn(decorateeSpy, "perform").mockRejectedValueOnce(new Error("decoratee_error"));
+    const httpResponsePromise = sut.perform({ any: "any" });
+
+    await expect(httpResponsePromise).rejects.toThrow(new Error("decoratee_error"));
   });
 });
