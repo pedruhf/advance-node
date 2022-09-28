@@ -5,5 +5,6 @@
   "username": "uqliyhpv",
   "password": "zSR6hCUp8HC_80Wg5WfXPzV1uLMEmACV",
   "database": "uqliyhpv",
-  "entities": ["dist/src/infra/postgres/entities/index.js"]
+  "entities": ["dist/src/infra/postgres/entities/index.js"],
+  "migrations": ["dist/src/main/migrations/*.js"]
 }
