@@ -1,9 +1,10 @@
-import { createConnection, getConnection, getConnectionManager, ObjectLiteral, ObjectType, QueryRunner, Repository } from "typeorm";
-import { ConnectionNotFoundError } from "@/infra/repos/postgres/helpers";
+import { Connection, createConnection, getConnection, getConnectionManager, getRepository, ObjectLiteral, ObjectType, QueryRunner, Repository } from "typeorm";
+import { ConnectionNotFoundError, TransactionNotFoundError } from "@/infra/repos/postgres/helpers";
 
 export class PgConnection {
   private static instance?: PgConnection;
   private queryRunner?: QueryRunner;
+  private connection?: Connection;
 
   private constructor() {}
 
@@ -16,50 +17,55 @@ export class PgConnection {
   }
 
   async connect(): Promise<void> {
-    const connection = getConnectionManager().has("default") ? getConnection() : await createConnection();
-    this.queryRunner = connection.createQueryRunner();
+    this.connection = getConnectionManager().has("default") ? getConnection() : await createConnection();
   }
 
   async disconnect(): Promise<void> {
-    if (!this.queryRunner) {
+    if (!this.connection) {
       throw new ConnectionNotFoundError();
     }
     await getConnection().close();
     this.queryRunner = undefined;
+    this.connection = undefined;
   }
 
   async openTransaction(): Promise<void> {
-    if (!this.queryRunner) {
+    if (!this.connection) {
       throw new ConnectionNotFoundError();
     }
+    this.queryRunner = this.connection.createQueryRunner();
     await this.queryRunner.startTransaction();
   }
 
   async closeTransaction(): Promise<void> {
     if (!this.queryRunner) {
-      throw new ConnectionNotFoundError();
+      throw new TransactionNotFoundError();
     }
     await this.queryRunner.release();
   }
 
   async commitTransaction(): Promise<void> {
     if (!this.queryRunner) {
-      throw new ConnectionNotFoundError();
+      throw new TransactionNotFoundError();
     }
     await this.queryRunner.commitTransaction();
   }
 
   async rollbackTransaction(): Promise<void> {
     if (!this.queryRunner) {
-      throw new ConnectionNotFoundError();
+      throw new TransactionNotFoundError();
     }
     await this.queryRunner.rollbackTransaction();
   }
 
   getRepository<Entity extends ObjectLiteral>(entity: ObjectType<Entity>): Repository<Entity> {
-    if (!this.queryRunner) {
+    if (!this.connection) {
       throw new ConnectionNotFoundError();
     }
-    return this.queryRunner.manager.getRepository(entity);
+    if (this.queryRunner) {
+      return this.queryRunner.manager.getRepository(entity);
+    }
+
+    return getRepository(entity);
   }
 }
