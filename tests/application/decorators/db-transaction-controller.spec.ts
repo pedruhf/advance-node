@@ -1,18 +1,17 @@
 import { Controller } from "@/application/controllers";
+import { HttpResponse } from "@/application/helpers";
 import { ControllerStub } from "@/tests/application/mocks";
 
 class DbTransactionControllerDecorator {
-  constructor(
-    private readonly decoratee: Controller,
-    private readonly db: DbTransaction
-  ) {}
+  constructor(private readonly decoratee: Controller, private readonly db: DbTransaction) {}
 
-  async perform(httpRequest: any): Promise<void> {
+  async perform(httpRequest: any): Promise<HttpResponse | undefined> {
     await this.db.openTransaction();
     try {
-      await this.decoratee.perform(httpRequest);
+      const httpResponse = await this.decoratee.perform(httpRequest);
       await this.db.commitTransaction();
       await this.db.closeTransaction();
+      return httpResponse;
     } catch {
       await this.db.rollbackTransaction();
       await this.db.closeTransaction();
@@ -85,7 +84,7 @@ describe("DbTransactionControllerDecorator", () => {
     expect(closeTransactionSpy).toHaveBeenCalledTimes(1);
   });
 
-  test("Should call commit and close transactions on success", async () => {
+  test("Should call rollback and close transactions on failure", async () => {
     const { sut, dbTransactionSpy, decorateeSpy } = makeSut();
     jest.spyOn(decorateeSpy, "perform").mockRejectedValueOnce(new Error("decoratee_error"));
     const commitTransactionSpy = jest.spyOn(dbTransactionSpy, "commitTransaction");
@@ -98,5 +97,19 @@ describe("DbTransactionControllerDecorator", () => {
     expect(rollbackTransactionSpy).toHaveBeenCalledTimes(1);
     expect(closeTransactionSpy).toHaveBeenCalled();
     expect(closeTransactionSpy).toHaveBeenCalledTimes(1);
+  });
+
+  test("Should return the same result as decoratee on success", async () => {
+    const { sut, decorateeSpy } = makeSut();
+    jest.spyOn(decorateeSpy, "perform").mockResolvedValueOnce({
+      statusCode: 200,
+      data: { anyField: "any_value" },
+    });
+    const httpResponse = await sut.perform({ any: "any" });
+
+    expect(httpResponse).toEqual({
+      statusCode: 200,
+      data: { anyField: "any_value" },
+    });
   });
 });
