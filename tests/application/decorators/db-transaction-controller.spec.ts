@@ -1,10 +1,16 @@
+import { Controller } from "@/application/controllers";
 import { HttpResponse } from "@/application/helpers";
+import { ControllerStub } from "@/tests/application/mocks";
 
 class DbTransactionControllerDecorator {
-  constructor(private readonly db: DbTransaction) {}
+  constructor(
+    private readonly decoratee: Controller,
+    private readonly db: DbTransaction
+  ) {}
 
   async perform(httpRequest: any): Promise<void> {
     await this.db.openTransaction();
+    await this.decoratee.perform(httpRequest);
   }
 }
 
@@ -18,15 +24,18 @@ class DbTransactionSpy implements DbTransaction {
 
 type SutTypes = {
   sut: DbTransactionControllerDecorator;
+  decorateeSpy: ControllerStub;
   dbTransactionSpy: DbTransactionSpy;
 };
 
 const makeSut = (): SutTypes => {
   const dbTransactionSpy = new DbTransactionSpy();
-  const sut = new DbTransactionControllerDecorator(dbTransactionSpy);
+  const decorateeSpy = new ControllerStub();
+  const sut = new DbTransactionControllerDecorator(decorateeSpy, dbTransactionSpy);
 
   return {
     sut,
+    decorateeSpy,
     dbTransactionSpy,
   };
 };
@@ -39,5 +48,14 @@ describe("DbTransactionControllerDecorator", () => {
 
     expect(openTransactionSpy).toHaveBeenCalled();
     expect(openTransactionSpy).toHaveBeenCalledTimes(1);
+  });
+
+  test("Should executre decoratee", async () => {
+    const { sut, decorateeSpy } = makeSut();
+    const decorateePerformSpy = jest.spyOn(decorateeSpy, "perform");
+    await sut.perform({ any: "any" });
+
+    expect(decorateePerformSpy).toHaveBeenCalled();
+    expect(decorateePerformSpy).toHaveBeenCalledTimes(1);
   });
 });
